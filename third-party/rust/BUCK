@@ -1,4 +1,4 @@
-load("//third-party/rust:defs.bzl", "third_party_rust_binary", "third_party_rust_library")
+load("//third-party/rust:defs.bzl", "third_party_cxx_library" "third_party_rust_binary", "third_party_rust_library")
 third_party_rust_library(
     name = "addr2line-0.13.0",
     crate = "addr2line",
@@ -12008,78 +12008,6 @@ third_party_rust_binary(
     env = {
         "TYPENUM_BUILD_CONSTS": "op.rs",
         "TYPENUM_BUILD_OP": "consts.rs",
-    },
-    unittests = False,
-    proc_macro = False,
-)
-third_party_cxx_library(
-    name = "typenum-1.12.0-build-script-main-san-conf-__generated-lib__",
-    crate = None,
-    crate_root = "",
-    edition = None,
-    features = [],
-    srcs = [":typenum-1.12.0-build-script-main-san-conf=san-conf.c",],
-    mapped_srcs = {
-    },
-    deps = [],
-    named_deps = {
-    },
-    rustc_flags = [],
-    env = {
-    },
-    unittests = False,
-    proc_macro = False,
-)
-third_party_cxx_genrule(
-    name = "typenum-1.12.0-build-script-main-srcs",
-    crate = None,
-    crate_root = "",
-    edition = None,
-    features = [],
-    srcs = [],
-    mapped_srcs = {
-    },
-    deps = [],
-    named_deps = {
-    },
-    rustc_flags = [],
-    env = {
-    },
-    unittests = False,
-    proc_macro = False,
-)
-third_party_cxx_genrule(
-    name = "typenum-1.12.0-build-script-main-srcs=consts.rs",
-    crate = None,
-    crate_root = "",
-    edition = None,
-    features = [],
-    srcs = [],
-    mapped_srcs = {
-    },
-    deps = [],
-    named_deps = {
-    },
-    rustc_flags = [],
-    env = {
-    },
-    unittests = False,
-    proc_macro = False,
-)
-third_party_cxx_genrule(
-    name = "typenum-1.12.0-build-script-main-srcs=op.rs",
-    crate = None,
-    crate_root = "",
-    edition = None,
-    features = [],
-    srcs = [],
-    mapped_srcs = {
-    },
-    deps = [],
-    named_deps = {
-    },
-    rustc_flags = [],
-    env = {
     },
     unittests = False,
     proc_macro = False,
