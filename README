@@ -1,0 +1,7 @@
+This branch is included as a submodule from the `main` branch.
+
+It contains solely generated code, and any manmade changes will be wiped away
+frequently.
+
+This is our workaround for getting code on GitHub that can be managed
+independently of our internal repositories.
