@@ -1,4 +1,5 @@
-load("//third-party/rust:defs.bzl", "third_party_cxx_library" "third_party_rust_binary", "third_party_rust_library")
+load("//third-party/rust:defs.bzl", "third_party_cxx_library", "third_party_rust_binary", "third_party_rust_library")
+
 third_party_rust_library(
     name = "addr2line-0.13.0",
     crate = "addr2line",
