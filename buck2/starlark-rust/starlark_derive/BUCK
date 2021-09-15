@@ -1,0 +1,36 @@
+load("//third-party/rust:defs.bzl", "third_party_cxx_binary", "third_party_cxx_library", "third_party_rust_binary", "third_party_rust_library")
+
+third_party_rust_library(
+    name = "starlark_derive",
+    srcs = ["src/attrs.rs",
+    "src/lib.rs",
+    "src/parse.rs",
+    "src/render.rs",
+    "src/trace.rs",
+    "src/typ.rs",
+    "src/util.rs",
+    ],
+    deps = ["//generated/third-party/rust:proc-macro2",
+    "//generated/third-party/rust:quote",
+    "//generated/third-party/rust:syn",
+    "//generated/third-party/rust/gazebo/gazebo:gazebo",
+    ],
+    crate = None,
+    crate_root = "src/lib.rs",
+    edition = "2018",
+    features = [],
+    mapped_srcs = {
+    },
+    named_deps = {
+    },
+    rustc_flags = ["-Aunused_braces",
+    "-Wbare_trait_objects",
+    "-Wellipsis_inclusive_range_patterns",
+    "-Dnon_fmt_panic",
+    "-Dunconditional_recursion",
+    ],
+    env = {
+    },
+    unittests = False,
+    proc_macro = True,
+)

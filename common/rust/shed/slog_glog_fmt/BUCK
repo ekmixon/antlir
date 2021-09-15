@@ -1,0 +1,38 @@
+load("//third-party/rust:defs.bzl", "third_party_cxx_binary", "third_party_cxx_library", "third_party_rust_binary", "third_party_rust_library")
+
+third_party_rust_library(
+    name = "slog_glog_fmt",
+    srcs = ["src/collector_serializer.rs",
+    "src/glog_format.rs",
+    "src/kv_categorizer.rs",
+    "src/kv_defaults.rs",
+    "src/lib.rs",
+    ],
+    deps = ["//generated/third-party/rust:anyhow",
+    "//generated/third-party/rust:chrono",
+    "//generated/third-party/rust:hostname",
+    "//generated/third-party/rust:itertools",
+    "//generated/third-party/rust:nix",
+    "//generated/third-party/rust:slog",
+    "//generated/third-party/rust:slog-term",
+    "//generated/third-party/rust:failure_ext",
+    ],
+    crate = None,
+    crate_root = "src/lib.rs",
+    edition = None,
+    features = [],
+    mapped_srcs = {
+    },
+    named_deps = {
+    },
+    rustc_flags = ["-Aunused_braces",
+    "-Wbare_trait_objects",
+    "-Wellipsis_inclusive_range_patterns",
+    "-Dnon_fmt_panic",
+    "-Dunconditional_recursion",
+    ],
+    env = {
+    },
+    unittests = False,
+    proc_macro = False,
+)
