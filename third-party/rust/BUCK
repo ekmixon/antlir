@@ -2652,7 +2652,7 @@ third_party_rust_library(
     mapped_srcs = {
     },
     named_deps = {
-        "futures_01": "//generated/third-party/rust:futures-old",
+        "futures_01": ":futures-old",
     },
     rustc_flags = ["--cap-lints=allow",],
     env = {
@@ -6760,7 +6760,7 @@ third_party_rust_library(
     mapped_srcs = {
     },
     named_deps = {
-        "getrandom_package": "//generated/third-party/rust:getrandom-0.1.15",
+        "getrandom_package": ":getrandom-0.1.15",
     },
     rustc_flags = ["--cap-lints=allow",],
     env = {

@@ -13,7 +13,7 @@ third_party_rust_library(
     deps = ["//generated/third-party/rust:proc-macro2",
     "//generated/third-party/rust:quote",
     "//generated/third-party/rust:syn",
-    "//generated/third-party/rust/gazebo/gazebo:gazebo",
+    "//generated/buck2/gazebo/gazebo:gazebo",
     ],
     crate = None,
     crate_root = "src/lib.rs",

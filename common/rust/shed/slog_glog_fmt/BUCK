@@ -15,7 +15,7 @@ third_party_rust_library(
     "//generated/third-party/rust:nix",
     "//generated/third-party/rust:slog",
     "//generated/third-party/rust:slog-term",
-    "//generated/third-party/rust:failure_ext",
+    "//generated/common/rust/shed/failure_ext:failure_ext",
     ],
     crate = None,
     crate_root = "src/lib.rs",
