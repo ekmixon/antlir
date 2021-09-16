@@ -101,9 +101,9 @@
     while_true
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(docsrs, feature(doc_cfg), deny(rustdoc::broken_intra_doc_links))]
+#![cfg_attr(docsrs, feature(doc_cfg), deny(broken_intra_doc_links))]
 #[cfg(feature = "std-future")]
-use pin_project_lite::pin_project;
+use pin_project::pin_project;
 
 pub(crate) mod stdlib;
 
@@ -242,44 +242,30 @@ pub trait WithSubscriber: Sized {
     }
 }
 
-#[cfg(feature = "std-future")]
-pin_project! {
-    /// A future, stream, sink, or executor that has been instrumented with a `tracing` span.
-    #[derive(Debug, Clone)]
-    pub struct Instrumented<T> {
-        #[pin]
-        inner: T,
-        span: Span,
-    }
-}
-
 /// A future, stream, sink, or executor that has been instrumented with a `tracing` span.
-#[cfg(not(feature = "std-future"))]
+#[cfg_attr(feature = "std-future", pin_project)]
 #[derive(Debug, Clone)]
 pub struct Instrumented<T> {
+    #[cfg(feature = "std-future")]
+    #[pin]
+    inner: T,
+    #[cfg(not(feature = "std-future"))]
     inner: T,
     span: Span,
 }
 
-#[cfg(all(feature = "std", feature = "std-future"))]
-pin_project! {
-    /// A future, stream, sink, or executor that has been instrumented with a
-    /// `tracing` subscriber.
-    #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
-    #[derive(Clone, Debug)]
-    pub struct WithDispatch<T> {
-        #[pin]
-        inner: T,
-        dispatch: Dispatch,
-    }
-}
-
 /// A future, stream, sink, or executor that has been instrumented with a
 /// `tracing` subscriber.
-#[cfg(all(feature = "std", not(feature = "std-future")))]
+#[cfg(feature = "std")]
 #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
+#[cfg_attr(feature = "std-future", pin_project)]
 #[derive(Clone, Debug)]
 pub struct WithDispatch<T> {
+    // cfg_attr doesn't work inside structs, apparently...
+    #[cfg(feature = "std-future")]
+    #[pin]
+    inner: T,
+    #[cfg(not(feature = "std-future"))]
     inner: T,
     dispatch: Dispatch,
 }
