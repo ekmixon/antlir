@@ -141,7 +141,7 @@ def _nspawn_cmd(
     - ns: This is an unshare instance with just a unique mount namepsace that
         contains the bind mounts used for `temp_bind_rootfs`.
     """
-    cmd = [
+    return [
         "/bin/bash",
         "-uec",
         f"""
@@ -182,8 +182,6 @@ def _nspawn_cmd(
         ),
     ]
 
-    return cmd
-
 
 # This is a separate helper so that tests can mock it easily
 def _artifacts_require_repo(src_subvol: Subvol):
@@ -210,10 +208,11 @@ def _extra_nspawn_args_and_env(
             extra_nspawn_args.extend(
                 bind_args(
                     mount.build_source.source,
-                    "/" + mount.mountpoint,
+                    f"/{mount.mountpoint}",
                     readonly=True,
                 )
             )
+
         elif mount.build_source.type == "layer":
             target = mount.build_source.source
             extra_nspawn_args.extend(
@@ -221,10 +220,11 @@ def _extra_nspawn_args_and_env(
                     find_built_subvol(
                         opts.targets_and_outputs[str(target)]
                     ).path(),
-                    "/" + mount.mountpoint,
+                    f"/{mount.mountpoint}",
                     readonly=True,
                 )
             )
+
 
     if opts.quiet:
         extra_nspawn_args.append("--quiet")
@@ -309,9 +309,7 @@ def _extra_nspawn_args_and_env(
     if opts.debug_only_opts.register:
         extra_nspawn_args.append("--register=yes")
     else:
-        extra_nspawn_args.append("--register=no")
-        extra_nspawn_args.append("--keep-unit")
-
+        extra_nspawn_args.extend(("--register=no", "--keep-unit"))
     cmd_env = []
 
     # Set the thrift env vars before we copy the user-supplied env vars,
@@ -342,8 +340,7 @@ def _snapshot_subvol(
             tmp_name = os.path.basename(
                 os.path.dirname(tmp_name)
             ) or os.path.basename(tmp_name)
-            nspawn_subvol = tmp_subvols.snapshot(src_subvol, tmp_name)
-            yield nspawn_subvol
+            yield tmp_subvols.snapshot(src_subvol, tmp_name)
 
 
 def nspawn_sanitize_env():

@@ -88,9 +88,7 @@ class RpmActionItemTestImpl(RpmActionItemTestBase):
     def _check_rpm_action_item_subvol(
         self, subvol, rpm_item: RpmActionItem, fs_render, *, opts=None
     ):
-        RpmActionItem.get_phase_builder(
-            [rpm_item], opts if opts else self._opts()
-        )(subvol)
+        RpmActionItem.get_phase_builder([rpm_item], opts or self._opts())(subvol)
         subvol.run_as_root(
             [
                 "rm",

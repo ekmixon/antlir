@@ -58,7 +58,7 @@ def _prepare_versionlock_lists(
             f"{p}" for p in (subvol.path(snapshot_dir)).listdir()
         } & set(templates.keys()):
             template = templates[prog]
-            src = d / (prog + "-versionlock.list")
+            src = d / f"{prog}-versionlock.list"
             with create_ro(src, "w") as wf:
                 for e, n, v, r, a in envra_set:
                     wf.write(template.format(e=e, n=n, v=v, r=r, a=a))

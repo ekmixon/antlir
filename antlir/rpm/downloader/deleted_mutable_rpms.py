@@ -32,6 +32,7 @@ Design rationale: These "remediated" hashes are not in the database, because:
     current source tree, but this is just a more complicated way of pinning
     the remediated RPMs to the source tree.
 """
+
 deleted_mutable_rpms = {
     # ("universe", Rpm.nevra()): {Checksum(...), Checksum(...)},
 }
@@ -41,7 +42,7 @@ try:
         deleted_mutable_rpms as _fb_deleted_mutable_rpms,
     )
 
-    deleted_mutable_rpms.update(_fb_deleted_mutable_rpms)
+    deleted_mutable_rpms |= _fb_deleted_mutable_rpms
 except ImportError:  # pragma: no cover
     pass
 

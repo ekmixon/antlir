@@ -102,10 +102,7 @@ class TestShape(unittest.TestCase):
         def _deep_typehints(obj):
             hints = {}
             for key, val in getattr(obj, "__annotations__", {}).items():
-                if hasattr(val, "__annotations__"):
-                    hints[key] = _deep_typehints(val)
-                else:
-                    hints[key] = val
+                hints[key] = _deep_typehints(val) if hasattr(val, "__annotations__") else val
             return hints
 
         # non-nested type hints can easily be compared

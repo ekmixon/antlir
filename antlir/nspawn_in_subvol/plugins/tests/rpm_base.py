@@ -43,10 +43,11 @@ class RpmNspawnTestBase(NspawnTestBase):
         run_prog_as_is=False,
     ):
         maybe_config_arg = (
-            (f"--config={self._SNAPSHOT_DIR}/{prog}/etc/{prog}/{prog}.conf")
-            if not run_prog_as_is
-            else ""
+            ""
+            if run_prog_as_is
+            else f"--config={self._SNAPSHOT_DIR}/{prog}/etc/{prog}/{prog}.conf"
         )
+
 
         test_sh_script = textwrap.dedent(
             f"""\

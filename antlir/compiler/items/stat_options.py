@@ -104,10 +104,7 @@ def mode_to_octal_str(mode: Mode) -> str:
 
 
 def mode_to_str(mode: Mode) -> str:
-    if isinstance(mode, int):
-        return f"{mode:04o}"
-    # The symbolic mode must be applied after 0ing all bits.
-    return f"a-rwxXst,{mode}"
+    return f"{mode:04o}" if isinstance(mode, int) else f"a-rwxXst,{mode}"
 
 
 # Future: this should validate that the user & group actually exist in the

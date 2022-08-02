@@ -260,9 +260,7 @@ def _mock_path_exists(existing_paths):
     old_mock_path_exists = Path.exists
 
     def path_exists_side_effect(self, **kwargs):
-        if self in existing_paths:
-            return True
-        return old_mock_path_exists(self, **kwargs)
+        return True if self in existing_paths else old_mock_path_exists(self, **kwargs)
 
     return unittest.mock.patch.object(
         Path,

@@ -257,15 +257,16 @@ def _make_nspawn_cmd(
     # We don't set `--user` here, since booting `systemd` requires root, and
     # in the non-booted case, the user of the container dummy doesn't
     # matter. The user from `opts.cmd` is set later.
-    cmd = [*setup.nspawn_cmd]
-    cmd.extend(
-        [
+    cmd = [
+        *setup.nspawn_cmd,
+        *[
             "--console=read-only",  # `stdin` is attached to `cmd` via `nsenter`
             f"--bind-ro={tmp_mount}:{_TMP_MOUNT}",
             f"--bind-ro=/proc:{_TMP_MOUNT}/outerproc",
             f"--bind-ro={busybox}:{_TMP_MOUNT}/busybox",
-        ]
-    )
+        ],
+    ]
+
     if setup.opts.boot:
         # Instead of using the `--boot` argument to `systemd-nspawn`, tell
         # it to invoke a simple shell script so that we can exfiltrate the

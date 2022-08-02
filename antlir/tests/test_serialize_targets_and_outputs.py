@@ -47,7 +47,7 @@ class TestSerializeTargetsAndOutputs(unittest.TestCase):
             ret[target] = str(loc)
             if target.startswith("//"):
                 ret[main_cell + target] = str(loc)
-            if target.startswith(main_cell + "//"):
+            if target.startswith(f"{main_cell}//"):
                 ret[target[len(main_cell) :]] = str(loc)
         return ret
 

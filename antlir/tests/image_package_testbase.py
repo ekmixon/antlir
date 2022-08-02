@@ -119,10 +119,11 @@ class ImagePackageTestCaseBase(AntlirTestCase):
                 "--sparse",
                 "--xattrs",
                 "--acls",
-                mount_dir + "/",
+                f"{mount_dir}/",
                 subvol.path(),
             )
         )
+
         with tempfile.NamedTemporaryFile() as temp_sendstream:
             with subvol.mark_readonly_and_write_sendstream_to_file(
                 temp_sendstream
@@ -146,14 +147,9 @@ class ImagePackageTestCaseBase(AntlirTestCase):
         self._assert_filesystem_label(unshare, mount_dir, label)
         subvol = temp_subvolumes.create("subvol")
         subprocess.check_call(
-            nsenter_as_root(
-                unshare,
-                "cp",
-                "-a",
-                mount_dir + "/.",
-                subvol.path(),
-            )
+            nsenter_as_root(unshare, "cp", "-a", f"{mount_dir}/.", subvol.path())
         )
+
         self.assertEqual(
             render_subvol(subvol),
             [

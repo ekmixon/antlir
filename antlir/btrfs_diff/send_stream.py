@@ -190,9 +190,11 @@ def get_frequency_of_selinux_xattrs(items):
     'Returns {"xattr_value": <count>}. Useful for ItemFilters.selinux_xattr.'
     counter = Counter()
     for item in items:
-        if isinstance(item, SendStreamItems.set_xattr):
-            if item.name == _SELINUX_XATTR:
-                counter[item.data] += 1
+        if (
+            isinstance(item, SendStreamItems.set_xattr)
+            and item.name == _SELINUX_XATTR
+        ):
+            counter[item.data] += 1
     return counter
 
 
@@ -213,11 +215,12 @@ class ItemFilters:
         just filter out these `set_xattr`s
         """
         for item in items:
-            if isinstance(item, SendStreamItems.set_xattr):
-                if item.name == _SELINUX_XATTR and discard_fn(
-                    item.path, item.data
-                ):
-                    continue
+            if (
+                isinstance(item, SendStreamItems.set_xattr)
+                and item.name == _SELINUX_XATTR
+                and discard_fn(item.path, item.data)
+            ):
+                continue
             yield item
 
     @staticmethod

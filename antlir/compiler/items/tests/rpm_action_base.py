@@ -120,13 +120,12 @@ class RpmActionItemTestBase:
                 [
                     "rm",
                     "-rf",
-                    # Annotate all paths since `sudo rm -rf` is scary.
                     subvol.path("var/lib/rpm"),
                     subvol.path("var/lib/yum"),
                     subvol.path("var/lib/dnf"),
                     subvol.path("var/log/yum.log"),
                     *(
-                        subvol.path("var/log/" + log)
+                        subvol.path(f"var/log/{log}")
                         for log in [
                             "yum.log",
                             "dnf.log",
@@ -139,6 +138,7 @@ class RpmActionItemTestBase:
                     subvol.path("bin/sh"),
                 ]
             )
+
             if self._YUM_DNF == YumDnf.dnf:
                 subvol.run_as_root(
                     [

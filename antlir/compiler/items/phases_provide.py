@@ -145,9 +145,7 @@ class PhasesProvideItem(ImageItem):
     subvol: Subvol
 
     def provides(self):
-        for path in gen_subvolume_subtree_provides(self.subvol, Path("/")):
-            yield path
-
+        yield from gen_subvolume_subtree_provides(self.subvol, Path("/"))
         # Note: Here we evaluate if the passwd/group file is available
         # in the subvol to emit users and groups.  If the db files are not
         # available we default to emitting a "root" user/group because that
@@ -157,15 +155,13 @@ class PhasesProvideItem(ImageItem):
         # "root:root".
         group_file_path = self.subvol.path(GROUP_FILE_PATH)
         if group_file_path.exists():
-            for provide in GroupFile(group_file_path.read_text()).provides():
-                yield provide
+            yield from GroupFile(group_file_path.read_text()).provides()
         else:
             yield ProvidesGroup("root")
 
         passwd_file_path = self.subvol.path(PASSWD_FILE_PATH)
         if passwd_file_path.exists():
-            for provide in PasswdFile(passwd_file_path.read_text()).provides():
-                yield provide
+            yield from PasswdFile(passwd_file_path.read_text()).provides()
         else:
             yield ProvidesUser("root")
 

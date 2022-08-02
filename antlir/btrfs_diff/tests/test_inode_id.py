@@ -329,7 +329,7 @@ class InodeIDTestCase(DeepCopyTestCase):
         )
 
     def test_hashing_and_equality(self):
-        maps = [InodeIDMap.new() for i in range(100)]
+        maps = [InodeIDMap.new() for _ in range(100)]
         hashes = {hash(m.get_id(b".")) for m in maps}
         self.assertNotEqual({next(iter(hashes))}, hashes)
         # Even 5 collisions out of 100 is too many, but the goal is to avoid

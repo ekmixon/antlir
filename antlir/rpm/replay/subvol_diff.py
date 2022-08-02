@@ -60,8 +60,7 @@ def _parse_diff_output(
         left_base
     ), (left_base, right_base)
     for l in out.splitlines():
-        m = re.match(b"Files (.*) and (.*) differ$", l)
-        if m:
+        if m := re.match(b"Files (.*) and (.*) differ$", l):
             assert all(b" and " not in g for g in m.groups()), ("ambiguous", l)
             left, right = m.groups()
             assert left.startswith(left_base) and right.startswith(
@@ -74,8 +73,7 @@ def _parse_diff_output(
             yield left
             continue
 
-        m = re.match(b"Only in (.*): ([^/]*)$", l)
-        if m:
+        if m := re.match(b"Only in (.*): ([^/]*)$", l):
             left_or_right, lacks_counterpart = m.groups()
             assert not re.match(b".*: [^/]*$", left_or_right), ("ambigous", l)
             left_or_right += b"/"

@@ -146,18 +146,10 @@ class SubvolumeGarbageCollectorTestCase(unittest.TestCase):
         # NB: I'm too lazy to test that `refs_dir` is created if missing.
         with TempSubvolumes() as tmp_subvols, temp_dir() as refs_dir:
             subs_dir = tmp_subvols.temp_dir
-            # Track subvolumes + refcounts that will get garbage-collected
-            # separately from those that won't.
-            gcd_subs = set()
-            kept_subs = set()
-            gcd_refs = set()
-            kept_refs = set()
-
             # Subvolume without a refcount -- tests "rule name != subvol"
             os.makedirs(subs_dir / "no:refs")
             tmp_subvols.create("no:refs/subvol_name")
-            gcd_subs.add(Path("no:refs"))
-
+            gcd_subs = {Path("no:refs")}
             # Wrapper without a refcount and without a subvolume
             os.makedirs((subs_dir / "no_refs:nor_subvol"))
             gcd_subs.add(Path("no_refs:nor_subvol"))
@@ -167,13 +159,13 @@ class SubvolumeGarbageCollectorTestCase(unittest.TestCase):
             os.makedirs(subs_dir / "1:link")
             tmp_subvols.create("1:link/1")
 
-            gcd_refs.add(Path("1:link.json"))
+            gcd_refs = {Path("1:link.json")}
             gcd_subs.add(Path("1:link"))
 
             # Some refcount files with a link count of 2
             (refs_dir / "2link:1.json").touch()
             os.link(refs_dir / "2link:1.json", refs_dir / "2link:2.json")
-            kept_refs.add(Path("2link:1.json"))
+            kept_refs = {Path("2link:1.json")}
             kept_refs.add(Path("2link:2.json"))
 
             # Subvolumes for both of the 2-link refcount files
@@ -181,7 +173,7 @@ class SubvolumeGarbageCollectorTestCase(unittest.TestCase):
             tmp_subvols.create("2link:1/2link")
             os.makedirs(subs_dir / "2link:2")
             tmp_subvols.create("2link:2/2link")
-            kept_subs.add(Path("2link:1"))
+            kept_subs = {Path("2link:1")}
             kept_subs.add(Path("2link:2"))
 
             # Some refcount files with a link count of 3

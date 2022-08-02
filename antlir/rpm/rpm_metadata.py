@@ -128,11 +128,7 @@ def compare_rpm_versions(a: RpmMetadata, b: RpmMetadata) -> int:
     # First compare the epoch, if set.  If the epoch's are not the same, then
     # the higher one wins no matter what the rest of the EVR is.
     if a.epoch != b.epoch:
-        if a.epoch > b.epoch:
-            return 1  # a > b
-        else:
-            return -1  # a < b
-
+        return 1 if a.epoch > b.epoch else -1
     # Epoch is the same, if version + release are the same we have a match
     if (a.version == b.version) and (a.release == b.release):
         return 0  # a == b
@@ -201,7 +197,7 @@ def _compare_values(left: str, right: str) -> int:
         # Caret means the version is less... Unless the other version
         # has ended, then do the exact opposite.
         if right.startswith(b"^"):
-            return -1 if not left else 1
+            return 1 if left else -1
 
         # We've run out of characters to compare.
         # Note: we have to do this after we compare the ~ and ^ madness
@@ -254,7 +250,4 @@ def _compare_values(left: str, right: str) -> int:
         return 0  # left == right
 
     # Longer string is > than shorter string
-    if len(left) != 0:
-        return 1  # left > right
-
-    return -1  # left < right
+    return 1 if len(left) != 0 else -1

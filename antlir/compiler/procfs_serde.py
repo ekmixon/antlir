@@ -100,29 +100,21 @@ from antlir.fs_utils import Path
 
 def _make_script(dest: bytes, cmds: List[str]):
     return [
-        # Write with `noclobber` to ensure that we fail if the file exists.
         "bash",
         "-ue",
         "-o",
         "noclobber",
         "-c",
         " ; ".join(
-            [
-                # Set umask to 0022 because bash's redirect mode is 0666, and we
-                # want file permissiosn to be 0644.
-                "umask 0022",
-                # pyre-fixme[16]: `bytes` has no attribute `shell_quote`.
-                "dest=" + dest.shell_quote(),
-                'dest_dir=$(dirname "$dest")',
-                # This won't make any directories outside the subvolume, since
-                # `run_as_root` asserts that the subvolume exists.  The presumed
-                # use-case is to make `/.meta/private/whatever/parent` inside a
-                # subvolume, without the client code having to worry about it.
-                # This auto-creation is OK since all metadata at present is
-                # supposed to be 0755 root:root.
-                'mkdir -p --mode=0755 "$dest_dir"',
-            ]
-            + cmds
+            (
+                [
+                    "umask 0022",
+                    f"dest={dest.shell_quote()}",
+                    'dest_dir=$(dirname "$dest")',
+                    'mkdir -p --mode=0755 "$dest_dir"',
+                ]
+                + cmds
+            )
         ),
     ]
 
@@ -209,7 +201,7 @@ def deserialize_untyped(path: Path, path_with_ext: str) -> Any:
             )
         s = s[:-1]
 
-        if ext == ".image_path" or ext == ".host_path":
+        if ext in [".image_path", ".host_path"]:
             return s
         elif ext == "":
             return s.decode()

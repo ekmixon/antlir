@@ -33,8 +33,7 @@ class SendToCoroutineTestCase(unittest.TestCase):
         with while_not_exited(self.demo_coroutine(coroutine_steps)) as ctx:
             self.events = []
             self.events.append(("initialized", ctx.send(None)))
-            for i in range(close_on_step):
-                self.events.append(("yielded", ctx.send(i)))
+            self.events.extend(("yielded", ctx.send(i)) for i in range(close_on_step))
             if do_close:
                 # Shows that our helper handles `.close()` in the `with`
                 ctx.close()
@@ -86,8 +85,6 @@ class SendToCoroutineTestCase(unittest.TestCase):
 
     def raise_immediately_coroutine(self):
         raise CoroutineTestError
-        yield "init"  # we need a `yield` to make this a generator
-        self.fail("not reached")
 
     def test_coroutines_that_raise(self):
         with while_not_exited(self.yield_and_raise_coroutine()) as ctx:

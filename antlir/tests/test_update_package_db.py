@@ -31,7 +31,7 @@ def _write_json_db(json_path, dct):
 
 
 async def _base_get_db_info_fn(pkg, tag, opts):
-    return pkg, tag, opts if opts else {"x": "z"}
+    return pkg, tag, opts or {"x": "z"}
 
 
 # CLI has only minor parsing on top of the library function, so it's valuable to
@@ -163,7 +163,7 @@ class UpdatePackageDbTestBase:
 
     async def test_tag_deletion(self):
         async def _get_db_info_fn_none(pkg, tag, opts):
-            return pkg, tag, opts if opts else None
+            return pkg, tag, opts or None
 
         with temp_dir() as td:
             db_path = td / "idb"

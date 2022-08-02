@@ -65,12 +65,13 @@ class ImageLayerTestCase(unittest.TestCase):
                 "is_directory": True,
                 "build_source": {
                     "type": "layer",
-                    "source": "//antlir/compiler/test_images:" + target,
+                    "source": f"//antlir/compiler/test_images:{target}",
                 },
             }
+
             if mount_config:
-                expected_config.update(mount_config)
-            with open(TARGET_TO_PATH[target] + "/mountconfig.json") as infile:
+                expected_config |= mount_config
+            with open(f"{TARGET_TO_PATH[target]}/mountconfig.json") as infile:
                 self.assertEqual(expected_config, json.load(infile))
             yield find_built_subvol(TARGET_TO_PATH[target])
 

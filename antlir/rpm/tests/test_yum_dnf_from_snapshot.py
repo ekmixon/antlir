@@ -104,8 +104,10 @@ class YumDnfFromSnapshotTestImpl:
         remove.append(install_root / f"var/log/{prog_name}.log")
         self.assertTrue(os.path.exists(remove[-1]))
         if self._YUM_DNF == YumDnf.dnf:  # `dnf` loves log files
-            for logfile in ["dnf.librepo.log", "dnf.rpm.log", "hawkey.log"]:
-                remove.append(install_root / "var/log" / logfile)
+            remove.extend(
+                install_root / "var/log" / logfile
+                for logfile in ["dnf.librepo.log", "dnf.rpm.log", "hawkey.log"]
+            )
 
         # Check that the above list of paths is complete.
         for path in remove:

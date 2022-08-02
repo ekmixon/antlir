@@ -98,12 +98,9 @@ class DownloadConfig(NamedTuple):
         assert (
             "force_master" not in self.db_cfg
         ), "force_master is picked by the caller"
-        # pyre-fixme [9]: Technically could be any `Pluggable`, but we use it as
-        # a DBConnectionContext
-        conn_ctx: DBConnectionContext = DBConnectionContext.from_json(
+        return DBConnectionContext.from_json(
             {**self.db_cfg, "readonly": readonly, "force_master": force_master}
         )
-        return conn_ctx
 
     def new_db_ctx(self, **kwargs) -> ContextManager[RepoDBContext]:
         return retryable_db_ctx(self.new_db_conn(**kwargs))

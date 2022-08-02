@@ -93,5 +93,4 @@ class UnionFind(object):
 
     def __iter__(self):
         """Enables iterations over ids"""
-        for id in self._representative_dict:
-            yield id
+        yield from self._representative_dict

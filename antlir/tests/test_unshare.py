@@ -85,12 +85,12 @@ class UnshareTestCase(unittest.TestCase):
         # We can kill the inner keepalive `cat` since it runs w/ our UID
         # Since it's an `init` of a PID namespace, we must use SIGKILL.
         cat_pid = int(
-            # pyre-fixme[16]: Optional type has no attribute `group`.
             re.match(
                 "^/proc/([0-9]+)/ns/",
                 next(iter(unshare._namespace_to_file.values())).name,
-            ).group(1)
+            )[1]
         )
+
         print("Sending SIGKILL to", cat_pid)
         os.kill(cat_pid, signal.SIGKILL)
 

@@ -19,10 +19,6 @@ from antlir.fs_utils import Path, temp_dir
 
 class RepoConfigTestCase(unittest.TestCase):
     def _test_repo_config(self, **kwargs):
-        # These are just hand constructed values that have no
-        # real meaning outside of the context of this test case.
-        # NOTE: this is the config _after_ being parsed from .buckconfig, not
-        # the raw values
         defaults = {
             "artifacts_require_repo": True,
             "artifact": {
@@ -44,8 +40,8 @@ class RepoConfigTestCase(unittest.TestCase):
             },
             "host_mounts_allowed_in_targets": [],
             "host_mounts_for_repo_artifacts": [],
-        }
-        defaults.update(kwargs)
+        } | kwargs
+
         return base_repo_config_t(**defaults).dict()
 
     def test_repo_config(self):

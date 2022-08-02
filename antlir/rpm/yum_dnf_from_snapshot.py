@@ -198,7 +198,9 @@ def _isolate_yum_dnf(
     # `filesystem` is installed and wants to mutate `/dev/`.  Such changes
     # will be gleefully discarded.
     set_up_dev = (
-        """\
+        ""
+        if _install_to_current_root(install_root)
+        else """\
 install_root={quoted_install_root}
 mkdir -p "$install_root"/dev/
 chown root:root "$install_root"/dev/
@@ -209,9 +211,8 @@ mount /dev/null "$install_root"/dev/null -o bind
             quoted_dummy_dev=dummy_dev.shell_quote(),
             quoted_install_root=install_root.shell_quote(),
         )
-        if not _install_to_current_root(install_root)
-        else ""
     )
+
     return [
         "bash",
         *(["-x"] if log.isEnabledFor(logging.DEBUG) else []),
@@ -613,12 +614,9 @@ def yum_dnf_from_snapshot(
         # read, so failing to protect the non-existent ones is OK.
         user_home = pwd.getpwnam("root").pw_dir  # Assume we `sudo` as `root`.
         optional_protected_paths.extend(
-            [
-                user_home + "/.rpmrc",
-                "/etc/rpmrc",
-                user_home + "/.rpmmacros",
-            ]
+            [f"{user_home}/.rpmrc", "/etc/rpmrc", f"{user_home}/.rpmmacros"]
         )
+
         # Unlike `/etc/dnf/dnf.conf` this isn't protected by an outer directory
         if yum_dnf == YumDnf.yum:
             optional_protected_paths.append("/etc/yum.conf")
@@ -646,21 +644,20 @@ def yum_dnf_from_snapshot(
     # For `image_yum_dnf_make_snapshot_cache` only.
     is_makecache = yum_dnf_args[:1] == ["makecache"]
     # For `rpmbuild.bzl` only:
-    if yum_dnf_args[:1] == ["builddep"]:
-        if yum_dnf == YumDnf.yum:
-            # In `yum`, this is not a verb but a separate command.  But our
-            # wrapper makes it work like it does in `dnf`.  One motivation is a
-            # more uniform implementation of `rpmbuild.bzl`, but a more
-            # important one is that need the ephemeral cache behavior provided
-            # by `_set_up_yum_dnf_cache`, since `/__antlir__` is read-only in
-            # genrule layers. Calling `yum-builddep` directly would not fail
-            # with "Read-only filesystem", but a confusing:
-            #     Error: No Package found for <RPM name>
-            #
-            # pyre-fixme[9]: yum_dnf_binary has type `Optional[Path]`; used as
-            # `str`.
-            yum_dnf_binary = "yum-builddep"
-            yum_dnf_args = yum_dnf_args[1:]
+    if yum_dnf_args[:1] == ["builddep"] and yum_dnf == YumDnf.yum:
+        # In `yum`, this is not a verb but a separate command.  But our
+        # wrapper makes it work like it does in `dnf`.  One motivation is a
+        # more uniform implementation of `rpmbuild.bzl`, but a more
+        # important one is that need the ephemeral cache behavior provided
+        # by `_set_up_yum_dnf_cache`, since `/__antlir__` is read-only in
+        # genrule layers. Calling `yum-builddep` directly would not fail
+        # with "Read-only filesystem", but a confusing:
+        #     Error: No Package found for <RPM name>
+        #
+        # pyre-fixme[9]: yum_dnf_binary has type `Optional[Path]`; used as
+        # `str`.
+        yum_dnf_binary = "yum-builddep"
+        yum_dnf_args = yum_dnf_args[1:]
 
     # pyre-fixme[16]: `Path` has no attribute `__enter__`.
     # pyre-fixme[16]: `Mapping` has no attribute `__enter__`.

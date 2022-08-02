@@ -91,16 +91,19 @@ class ItemProv(NamedTuple):
                     b.provides, (ProvidesDirectory, ProvidesSymlink)
                 )
 
-        for it in (SymlinkToDirItem, SymlinkToFileItem):
-            if isinstance(self.item, it) and isinstance(other.item, it):
-                return (
+        return next(
+            (
+                (
                     # pyre-fixme[16]: `ImageItem` has no attribute `dest`.
                     self.item.dest != other.item.dest
                     # pyre-fixme[16]: `ImageItem` has no attribute `source`.
                     or self.item.source != other.item.source
                 )
-
-        return True
+                for it in (SymlinkToDirItem, SymlinkToFileItem)
+                if isinstance(self.item, it) and isinstance(other.item, it)
+            ),
+            True,
+        )
 
 
 # NB: since the item is part of the tuple, we'll store identical
@@ -160,10 +163,14 @@ class ItemReqsProvs(NamedTuple):
         return [ir for ir in self.item_reqs if not self.item_req_fulfilled(ir)]
 
     def symlink_item_prov(self) -> Optional[ItemProv]:
-        for ip in self.item_provs:
-            if isinstance(ip.provides, ProvidesSymlink):
-                return ip
-        return None
+        return next(
+            (
+                ip
+                for ip in self.item_provs
+                if isinstance(ip.provides, ProvidesSymlink)
+            ),
+            None,
+        )
 
 
 def _symlink_target_normpath(symlink: Path, target: Path) -> Path:
@@ -229,8 +236,7 @@ class PathItemReqsProvs:
                         "RequireSymlink must be explicitly fulfilled"
                     )
 
-            symlink_item_provs = self._realpath_item_provs(path)
-            if symlink_item_provs:
+            if symlink_item_provs := self._realpath_item_provs(path):
                 # make sure a symlink prov fulfills the requirement
                 if all(
                     any(
@@ -298,9 +304,7 @@ class PathItemReqsProvs:
             nested_provs = self._realpath_item_provs(
                 search_path_realpath, history
             )
-            if nested_provs is None:
-                return None
-            return {symlink_item_prov} | nested_provs
+            return None if nested_provs is None else {symlink_item_prov} | nested_provs
         return self.path_to_item_reqs_provs[search_path].item_provs
 
 
@@ -384,10 +388,7 @@ class DependencyGraph:
             [FilesystemRootItem(from_target=layer_target)],
         )
         assert len(make_subvol_items) == 1, make_subvol_items
-        # If we have a genrule layer, it must be the only item, besides the
-        # mandatory `MAKE_SUBVOL` added above.
-        genrule = self.order_to_phase_items.get(PhaseOrder.GENRULE_LAYER)
-        if genrule:
+        if genrule := self.order_to_phase_items.get(PhaseOrder.GENRULE_LAYER):
             assert len(genrule) == 1, genrule
             assert not self.items, self.items
             assert set(self.order_to_phase_items.keys()) == {
@@ -515,6 +516,4 @@ class DependencyGraph:
 
         # Initially, every item was indexed here. If there's anything left,
         # we must have a cycle. Future: print a cycle to simplify debugging.
-        assert not ns.predecessor_to_items, "Cycle in {}".format(
-            ns.predecessor_to_items
-        )
+        assert not ns.predecessor_to_items, f"Cycle in {ns.predecessor_to_items}"

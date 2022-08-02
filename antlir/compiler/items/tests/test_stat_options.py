@@ -44,9 +44,7 @@ class StatOptionsTestCase(unittest.TestCase):
         ]
         with tempfile.TemporaryDirectory() as td:
             for val in inputs:
-                subprocess.check_call(
-                    ["chmod", f"a-rwxXst{',' + val if val else ''}", td]
-                )
+                subprocess.check_call(["chmod", f"a-rwxXst{f',{val}' if val else ''}", td])
                 stat_res = subprocess.check_output(
                     ["stat", "--format=%a", td], text=True
                 ).strip()

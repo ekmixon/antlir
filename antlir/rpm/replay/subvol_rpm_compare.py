@@ -119,11 +119,11 @@ def _gen_nevras_from_installer_output(
         if not m:
             continue
 
-        pkg_spec = m.group(2)
+        pkg_spec = m[2]
         if ":" not in pkg_spec:  # Both `yum` and `dnf` omit epoch if 0
             m = nvra_re.match(pkg_spec)
             assert m, f"Could not parse {rpm_installer} output: {line}"
-            nevra = NEVRA(m.group(1), "0", m.group(2), m.group(3), m.group(4))
+            nevra = NEVRA(m[1], "0", m[2], m[3], m[4])
         elif rpm_installer == YumDnf.dnf:  # NEVRA
             m = nevra_re.match(pkg_spec)
             assert m, f"Could not parse {rpm_installer} output: {line}"
@@ -131,9 +131,7 @@ def _gen_nevras_from_installer_output(
         elif rpm_installer == YumDnf.yum:  # ENVRA
             m = envra_re.match(pkg_spec)
             assert m, f"Could not parse {rpm_installer} output: {line}"
-            nevra = NEVRA(
-                m.group(2), m.group(1), m.group(3), m.group(4), m.group(5)
-            )
+            nevra = NEVRA(m[2], m[1], m[3], m[4], m[5])
         else:  # pragma: no cover
             raise NotImplementedError(rpm_installer)
 

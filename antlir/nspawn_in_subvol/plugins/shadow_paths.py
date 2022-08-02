@@ -50,8 +50,7 @@ def _shadow_search_dirs(setenv: Iterable[AnyStr]) -> Iterable[Path]:
     for k_v in setenv:
         k_v = Path(k_v)
         if k_v.startswith(path_prefix):
-            for p in k_v[len(path_prefix) :].split(b"="):
-                search_dirs.append(Path(p))
+            search_dirs.extend(Path(p) for p in k_v[len(path_prefix) :].split(b"="))
     search_dirs.extend(DEFAULT_SEARCH_PATHS)
     # Eagerly deduplicate, while preserving order -- our subsequent
     # candidate lookup is expensive.
@@ -102,16 +101,16 @@ def _resolve_to_canonical_shadow_paths(
             # Not an absolute path? It's a filename to resolve via PATH.
             assert b"/" not in dest, f"Neither absolute nor filename: {dest}"
             candidate_dests = [search_dir / dest for search_dir in search_dirs]
-        for candidate_dest in candidate_dests:
-            candidates.append(
-                _ShadowCandidate(
-                    # Do not `realpath` here because this would fail to
-                    # resolve symlinks which the repo user cannot access.
-                    host_dest=subvol.path(candidate_dest),
-                    host_src=subvol.path(src),
-                    input_dest=dest,
-                )
+        candidates.extend(
+            _ShadowCandidate(
+                # Do not `realpath` here because this would fail to
+                # resolve symlinks which the repo user cannot access.
+                host_dest=subvol.path(candidate_dest),
+                host_src=subvol.path(src),
+                input_dest=dest,
             )
+            for candidate_dest in candidate_dests
+        )
 
     # Check existence & resolve to real paths as `root` because
     # otherwise we would not get the right result if the path included

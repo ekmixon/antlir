@@ -59,10 +59,11 @@ class InodeID(NamedTuple):
         desc = ""
         if self.inner_id_map.description:
             desc = f"{self.inner_id_map.description}@"
-        if not paths:
-            return f"{desc}ANON_INODE#{self.id}"
-        return desc + ",".join(
-            p.decode(errors="surrogateescape") for p in sorted(paths)
+        return (
+            desc
+            + ",".join(p.decode(errors="surrogateescape") for p in sorted(paths))
+            if paths
+            else f"{desc}ANON_INODE#{self.id}"
         )
 
     # `_InnerInodeIDMap` is a tuple, which gives it "plain old data"

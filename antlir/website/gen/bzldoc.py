@@ -57,15 +57,14 @@ class BzlFile(object):
         assignments = [
             node for node in self.body if isinstance(node, ast.Assign)
         ]
-        # typically this is at the end of the module, so iterate backwards
-        for e in reversed(assignments):
-            # For easy matching, it is assumed that the name of the struct
-            # matches the module name
-            # pyre-fixme[16]: `expr` has no attribute `id`.
-            if len(e.targets) == 1 and e.targets[0].id == self.name:
-                # pyre-fixme[16]: `expr` has no attribute `keywords`.
-                return {kw.arg: kw.value for kw in e.value.keywords}
-        return None
+        return next(
+            (
+                {kw.arg: kw.value for kw in e.value.keywords}
+                for e in reversed(assignments)
+                if len(e.targets) == 1 and e.targets[0].id == self.name
+            ),
+            None,
+        )
 
     @property
     def functions(self) -> Mapping[str, ast.FunctionDef]:
@@ -104,11 +103,9 @@ class BzlFile(object):
         Attempt to resolve the given function name, traversing load()
         calls if it is not defined locally.
         """
-        f = self.functions.get(name, None)
-        if f:
+        if f := self.functions.get(name, None):
             return f
-        src = self.loaded_symbols.get(name, None)
-        if src:
+        if src := self.loaded_symbols.get(name, None):
             if src not in all_modules:
                 log.warning(
                     f"{name} is loaded from {src}, which was not parsed"
@@ -158,9 +155,9 @@ generated: """
 
             args = [a.arg for a in func.args.args]
             if func.args.vararg:
-                args.append("*" + func.args.vararg.arg)
+                args.append(f"*{func.args.vararg.arg}")
             if func.args.kwarg:
-                args.append("**" + func.args.kwarg.arg)
+                args.append(f"**{func.args.kwarg.arg}")
             args = ", ".join(args)
 
             md += f"`{name}`\n---\n"

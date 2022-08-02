@@ -40,11 +40,11 @@ def _rpm_set(infile: BytesIO, rd: Repodata):
     rpms = set()
     with get_rpm_parser(rd) as parser:
         while True:  # Exercise feed-in-chunks behavior
-            chunk = infile.read(127)  # Our repodatas are tiny
-            if not chunk:
+            if chunk := infile.read(127):
+                rpms.update(parser.feed(chunk))
+            else:
                 break
-            rpms.update(parser.feed(chunk))
-    assert len(rpms) > 0  # we have no empty test repos
+    assert rpms
     return rpms
 
 

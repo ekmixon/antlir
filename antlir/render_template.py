@@ -22,12 +22,12 @@ class PrecompiledLoader(BaseLoader):
     def get_template_key(name):
         if name.endswith(".jinja2"):
             name = name[: -len(".jinja2")]
-        return "tmpl_" + name
+        return f"tmpl_{name}"
 
     def load(self, environment, name, globals=None):
         key = self.get_template_key(name)
         try:
-            mod = importlib.import_module(self.base + "." + key)
+            mod = importlib.import_module(f"{self.base}.{key}")
         except ImportError:
             raise TemplateNotFound(name)
 

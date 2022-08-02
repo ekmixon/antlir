@@ -120,7 +120,7 @@ class SubvolumeOnDisk(
         # `to_serializable_dict` checks the idepmpotency of our
         # serialization-deserialization.
         volume_props = _btrfs_get_volume_props(subvol_path)
-        self = cls(
+        return cls(
             **{
                 _BTRFS_UUID: volume_props["UUID"],
                 _BTRFS_PARENT_UUID: volume_props["Parent UUID"],
@@ -130,7 +130,6 @@ class SubvolumeOnDisk(
                 _BUILD_APPLIANCE_PATH: build_appliance_path,
             }
         )
-        return self
 
     @classmethod
     def from_serializable_dict(cls, d, subvolumes_dir: Path):

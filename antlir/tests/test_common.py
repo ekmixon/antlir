@@ -24,6 +24,7 @@ from ..common import (
 
 class TestCommon(unittest.IsolatedAsyncioTestCase):
     def test_retry_fn(self):
+
         class Retriable:
             def __init__(self, attempts_to_fail=0):
                 self.attempts = 0
@@ -93,9 +94,7 @@ class TestCommon(unittest.IsolatedAsyncioTestCase):
 
         # Test is_exception_retriable
         def _is_retryable(e):
-            if isinstance(e, RuntimeError):
-                return False
-            return True
+            return not isinstance(e, RuntimeError)
 
         with self.assertRaises(RuntimeError) as ex_ctx:
             retry_fn(
@@ -118,6 +117,7 @@ class TestCommon(unittest.IsolatedAsyncioTestCase):
         self.assertIn("got 1, 2, 5", "".join(logs.output))
 
     async def test_async_retry_fn(self):
+
         class Retriable:
             def __init__(self, attempts_to_fail=0):
                 self.attempts = 0
@@ -192,9 +192,7 @@ class TestCommon(unittest.IsolatedAsyncioTestCase):
 
         # Test is_exception_retriable
         def _is_retryable(e):
-            if isinstance(e, RuntimeError):
-                return False
-            return True
+            return not isinstance(e, RuntimeError)
 
         with self.assertRaises(RuntimeError) as ex_ctx:
             await async_retry_fn(

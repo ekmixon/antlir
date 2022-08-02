@@ -66,8 +66,7 @@ class TestFsUtils(unittest.TestCase):
 
     def test_path_is_hashable(self):
         # Path must be hashable to be added to a set
-        ts = set()
-        ts.add(Path("foo"))
+        ts = {Path("foo")}
 
     def test_bad_utf_is_bad(self):
         with self.assertRaises(UnicodeDecodeError):
@@ -297,7 +296,7 @@ class TestFsUtils(unittest.TestCase):
         n_bytes = 12 << 20  # 12MiB
         my_line = b"kitteh" * 700 + b"\n"  # ~ 4KiB
         for compress, ext in [("gzip", "gz"), ("zstd", "zst")]:
-            filename = "kitteh." + ext
+            filename = f"kitteh.{ext}"
             with temp_dir() as td, open(td / filename, "wb") as outf:
                 with subprocess.Popen(
                     [compress, "-"], stdin=subprocess.PIPE, stdout=outf

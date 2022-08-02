@@ -84,9 +84,7 @@ class TestUnionFind(unittest.TestCase):
         union_find.union(2, 1)
         union_find.union(3, 2)
 
-        count = 0
-        for _ in union_find:
-            count += 1
+        count = sum(1 for _ in union_find)
         self.assertEqual(count, 3)
 
         keys = list(union_find)

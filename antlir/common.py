@@ -107,7 +107,7 @@ def get_logger():
     # Strip extension from name of logger
     if calling_file.endswith(".py"):
         calling_file = calling_file[: -len(".py")]
-    logger = logging.getLogger(_ANTLIR_ROOT_LOGGER + "." + calling_file)
+    logger = logging.getLogger(f"{_ANTLIR_ROOT_LOGGER}.{calling_file}")
     logger.setLevel(logging.NOTSET)
     return logger
 
@@ -385,7 +385,7 @@ def kernel_version() -> Tuple[int, int]:
         raise ValueError(
             f"Invalid kernel version format '{platform.release()}'"
         )
-    return int(m.group(1)), int(m.group(2))
+    return int(m[1]), int(m[2])
 
 
 class AsyncCompletedProc(NamedTuple):

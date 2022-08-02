@@ -324,8 +324,8 @@ class PackageImageTestCase(ImagePackageTestCaseBase):
     def _verify_package_as_squashfs(self, temp_subvolumes, pkg_path):
         subvol = temp_subvolumes.create("subvol")
         with Unshare(
-            [Namespace.MOUNT, Namespace.PID]
-        ) as unshare, tempfile.TemporaryDirectory() as mount_dir:
+                [Namespace.MOUNT, Namespace.PID]
+            ) as unshare, tempfile.TemporaryDirectory() as mount_dir:
             subprocess.check_call(
                 nsenter_as_root(
                     unshare,
@@ -350,10 +350,11 @@ class PackageImageTestCase(ImagePackageTestCaseBase):
                     "--sparse",
                     "--acls",
                     "--xattrs",
-                    mount_dir + "/",
+                    f"{mount_dir}/",
                     subvol.path(),
                 )
             )
+
         with tempfile.NamedTemporaryFile() as temp_sendstream:
             with subvol.mark_readonly_and_write_sendstream_to_file(
                 temp_sendstream

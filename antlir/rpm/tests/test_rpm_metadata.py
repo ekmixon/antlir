@@ -32,9 +32,8 @@ class RpmMetadataTestCase(unittest.TestCase):
         for line in importlib.resources.open_text(
             "antlir.rpm", "version-compare-tests"
         ).readlines():
-            m = STMT.match(line)
-            if m:
-                yield m.group(2), m.group(3), int(m.group(4))
+            if m := STMT.match(line):
+                yield (m[2], m[3], int(m[4]))
 
     def test_rpm_metadata_from_subvol(self):
         layer_path = os.path.join(os.path.dirname(__file__), "child-layer")

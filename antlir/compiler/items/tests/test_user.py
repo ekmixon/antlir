@@ -39,10 +39,7 @@ from .common import BaseItemTestCase
 class PasswdFileLineTest(unittest.TestCase):
     def test_new_passwd_file_line(self):
         for line in ["", "a", "1:2:3:4:5:6:7:8"]:
-            with self.assertRaisesRegex(
-                RuntimeError,
-                r"^Invalid passwd file line: " + line + r"$",
-            ):
+            with self.assertRaisesRegex(RuntimeError, f"^Invalid passwd file line: {line}$"):
                 new_passwd_file_line(line)
 
         self.assertEqual(
@@ -114,14 +111,8 @@ class PwconvTest(unittest.TestCase):
             len(pf.lines),
             len(sf.lines),
         )
-        # Verify that the users are identical and identically ordered
-        # in passwd and shadow
-        pf_users = []
-        sf_users = []
-        for entry in pf.nameToUID:
-            pf_users.append(entry)
-        for entry in sf.lines:
-            sf_users.append(entry)
+        pf_users = list(pf.nameToUID)
+        sf_users = list(sf.lines)
         self.assertEqual(pf_users, sf_users)
 
     def test_invalid_passwd(self):

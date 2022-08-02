@@ -89,11 +89,9 @@ def find_repo_root(path_in_repo: Optional[Path] = None) -> Path:
     # start from the location of the binary being executed.
     path_in_repo = path_in_repo or Path(sys.argv[0]).dirname()
 
-    repo_root = _first_parent_containing_sigil(
+    if repo_root := _first_parent_containing_sigil(
         path_in_repo, ".hg", is_dir=True
-    ) or _first_parent_containing_sigil(path_in_repo, ".git", is_dir=True)
-
-    if repo_root:
+    ) or _first_parent_containing_sigil(path_in_repo, ".git", is_dir=True):
         return repo_root
 
     raise RuntimeError(
@@ -117,10 +115,9 @@ def find_buck_cell_root(path_in_repo: Optional[Path] = None) -> Path:
     """
     path_in_repo = path_in_repo or Path(sys.argv[0]).dirname()
 
-    cell_path = _first_parent_containing_sigil(
+    if cell_path := _first_parent_containing_sigil(
         path_in_repo, ".buckconfig", is_dir=False
-    )
-    if cell_path:
+    ):
         return cell_path
 
     raise RuntimeError(

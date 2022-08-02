@@ -16,17 +16,12 @@ from antlir.tests.common import AntlirTestCase
 class KernelPanicTest(AntlirTestCase):
     def test_vmtest_kernel_panic(self):
         with importlib.resources.path(
-            __package__, "create-kernel-panic"
-        ) as vmtest, tempfile.NamedTemporaryFile() as console_f:
+                __package__, "create-kernel-panic"
+            ) as vmtest, tempfile.NamedTemporaryFile() as console_f:
 
             # This is the running the fully materialized =vmtest script
             # that buck built.
-            proc = subprocess.run(
-                [
-                    Path(vmtest),
-                    "--append-console={}".format(console_f.name),
-                ],
-            )
+            proc = subprocess.run([Path(vmtest), f"--append-console={console_f.name}"])
 
             # Expect to see the kernel panic message in the console output
             self.assertIn(

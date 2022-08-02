@@ -53,7 +53,7 @@ def _tarinfo_strip_dir_prefix(dir_prefix):
     dir_prefix = dir_prefix.lstrip("/")
 
     def strip_dir_prefix(tarinfo):
-        if tarinfo.path.startswith(dir_prefix + "/"):
+        if tarinfo.path.startswith(f"{dir_prefix}/"):
             tarinfo.path = tarinfo.path[len(dir_prefix) + 1 :]
         elif dir_prefix == tarinfo.path:
             tarinfo.path = "."

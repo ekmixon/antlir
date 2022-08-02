@@ -97,7 +97,7 @@ def freeze(obj, *, _memo=None, **kwargs):
         # At the moment, I don't have a need for passing extra data into
         # items that live inside containers.  If we're relaxing this, just
         # be sure to add `**kwargs` to each `freeze()` call below.
-        assert kwargs == {}, kwargs
+        assert not kwargs, kwargs
         # This is a lame-o way of identifying `NamedTuple`s. Using
         # `deepfrozen` would avoid this kludge.
         if (

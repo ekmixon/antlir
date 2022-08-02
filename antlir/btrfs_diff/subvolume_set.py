@@ -83,7 +83,7 @@ class SubvolumeDescription(NamedTuple):
     def name_uuid_prefixes(self):
         name = self.name.decode(errors="surrogateescape")
         for i in range(len(self.id.uuid) + 1):
-            yield (name + "@" + self.id.uuid[:i]) if i else name
+            yield f"{name}@{self.id.uuid[:i]}" if i else name
 
     def __repr__(self):
         for prefix in self.name_uuid_prefixes():
@@ -111,10 +111,14 @@ class SubvolumeSet(NamedTuple):
         return cls(**kwargs)
 
     def get_by_rendered_id(self, rendered_id: str) -> Optional[Subvolume]:
-        for subvol in self.uuid_to_subvolume.values():
-            if repr(subvol.id_map.inner.description) == rendered_id:
-                return subvol
-        return None
+        return next(
+            (
+                subvol
+                for subvol in self.uuid_to_subvolume.values()
+                if repr(subvol.id_map.inner.description) == rendered_id
+            ),
+            None,
+        )
 
     def freeze(self, *, _memo) -> "SubvolumeSet":
         """
@@ -243,10 +247,10 @@ class SubvolumeSetMutator(NamedTuple):
 
     def apply_item(self, item: SendStreamItem):
         if isinstance(item, SendStreamItems.clone):
-            from_subvol = self.subvolume_set.uuid_to_subvolume.get(
+            if from_subvol := self.subvolume_set.uuid_to_subvolume.get(
                 item.from_uuid.decode()
-            )
-            if not from_subvol:
+            ):
+                return self.subvolume.apply_clone(item, from_subvol)
+            else:
                 raise RuntimeError(f"Unknown from_uuid for {item}")
-            return self.subvolume.apply_clone(item, from_subvol)
         return self.subvolume.apply_item(item)

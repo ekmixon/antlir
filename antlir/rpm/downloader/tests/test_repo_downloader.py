@@ -396,10 +396,7 @@ class DownloadReposTestCase(unittest.TestCase):
 
         # Failure to get non-primary repodata should also abort a snapshot.
         with self._make_downloader("0/good_dog") as downloader:
-            with self._break_open_url(
-                r".*/good_dog/" + FILELISTS_REPODATA_REGEX,
-                raise_fake_http_error,
-            ), self.assertRaises(HTTPError):
+            with self._break_open_url(f".*/good_dog/{FILELISTS_REPODATA_REGEX}", raise_fake_http_error), self.assertRaises(HTTPError):
                 downloader()
 
     def _download_repo_twice(self, repo, step_and_repo, tmp_db, storage_dir):

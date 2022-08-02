@@ -205,11 +205,9 @@ class _CommitCallback(AbstractContextManager):
                     "to automatically clean up an uncommitted blob."
                 )
 
-        if exc_type:
-            # `self` must have been called, by the user, or just above.
-            if self.remove_on_exception:
-                assert self.get_id_and_release_resources is None
-                self.remove = True
+        if exc_type and self.remove_on_exception:
+            assert self.get_id_and_release_resources is None
+            self.remove = True
 
         if self.remove and self.id:
             # pyre-fixme[16]: `Storage` has no attribute `remove`.

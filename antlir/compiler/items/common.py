@@ -221,7 +221,7 @@ def make_path_normal_relative(orig_d: str, *, meta_check: bool = True) -> str:
     # regular items from writing to it. `d` is never absolute here.
     # NB: This check is redundant with `ProvidesDoNotAccess(path=META_DIR)`,
     # this is just here as a fail-fast backup.
-    if meta_check and (d + "/").startswith(META_DIR.decode()):
+    if meta_check and f"{d}/".startswith(META_DIR.decode()):
         raise AssertionError(f"path {orig_d} cannot start with {META_DIR}")
     return d
 
@@ -267,16 +267,12 @@ def protected_path_set(subvol: Optional[Subvol]) -> Set[Path]:
 
 
 def is_path_protected(path: Path, protected_paths: Set[Path]) -> bool:
-    # NB: The O-complexity could obviously be lots better, if needed.
-    for prot_path in protected_paths:
-        # Handle both protected files and directories.  This test is written
-        # to return True even if `prot_path` is `/path/to/file` while `path`
-        # is `/path/to/file/oops`.
-        if (path + b"/").startswith(
+    return any(
+        (path + b"/").startswith(
             prot_path + (b"" if prot_path.endswith(b"/") else b"/")
-        ):
-            return True
-    return False
+        )
+        for prot_path in protected_paths
+    )
 
 
 def setup_meta_dir(subvol: Subvol, layer_opts: LayerOpts):

@@ -62,10 +62,11 @@ T_SHADOW_ME = f"{T_BASE}:shadow_me"
 
 TARGET_ENV_VAR_PREFIX = "test_image_feature_path_to_"
 TARGET_TO_PATH = {
-    "{}:{}".format(T_BASE, target[len(TARGET_ENV_VAR_PREFIX) :]): path
+    f"{T_BASE}:{target[len(TARGET_ENV_VAR_PREFIX) :]}": path
     for target, path in os.environ.items()
     if target.startswith(TARGET_ENV_VAR_PREFIX)
 }
+
 # We rely on Buck setting the environment via the `env =` directive.
 assert T_HELLO_WORLD_TAR in TARGET_TO_PATH, "You must use `buck test`"
 

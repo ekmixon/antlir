@@ -256,5 +256,4 @@ def mounts_from_image_meta(image: Path) -> Iterator[Mount]:
             ],
         )
 
-        for mount in mounts_from_meta(td / "volume"):
-            yield mount
+        yield from mounts_from_meta(td / "volume")

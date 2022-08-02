@@ -89,11 +89,7 @@ def _download_repodata(
     # Remaining possibilities are that we've got a primary with or without
     # a storage_id, or a non-primary without a storage_id
     with ExitStack() as cm:
-        rpm_parser = None
-        if is_primary:
-            # We'll parse the selected primary file to discover the RPMs.
-            rpm_parser = cm.enter_context(get_rpm_parser(repodata))
-
+        rpm_parser = cm.enter_context(get_rpm_parser(repodata)) if is_primary else None
         if storage_id:
             # Read the primary from storage as we already have an ID
             infile = cm.enter_context(storage.reader(storage_id))

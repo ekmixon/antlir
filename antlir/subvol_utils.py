@@ -59,10 +59,10 @@ def _drain_pipe_return_byte_count(f: BinaryIO) -> int:
     chunk_size = 2 ** 19  # limit RAM usage
     total = 0
     while True:
-        num_read = len(f.read(chunk_size))
-        if not num_read:
+        if num_read := len(f.read(chunk_size)):
+            total += num_read
+        else:
             return total
-        total += num_read
 
 
 # HACK ALERT: `Subvol.delete()` removes subvolumes nested inside it. Some
@@ -1005,15 +1005,15 @@ class Subvol(DoNotFreeze):
         """
         open(output_path, "wb").close()
         with pipe() as (r_send, w_send), Unshare(
-            [Namespace.MOUNT, Namespace.PID]
-        ) as ns, BtrfsLoopbackVolume(
-            unshare=ns,
-            image_path=output_path,
-            size_bytes=fs_size_bytes,
-            loopback_opts=loopback_opts,
-        ) as loop_vol, self.mark_readonly_and_write_sendstream_to_file(
-            w_send
-        ):
+                [Namespace.MOUNT, Namespace.PID]
+            ) as ns, BtrfsLoopbackVolume(
+                unshare=ns,
+                image_path=output_path,
+                size_bytes=fs_size_bytes,
+                loopback_opts=loopback_opts,
+            ) as loop_vol, self.mark_readonly_and_write_sendstream_to_file(
+                w_send
+            ):
             w_send.close()  # This end is now fully owned by `btrfs send`.
             with r_send:
                 recv_ret = loop_vol.receive(r_send)
@@ -1162,9 +1162,9 @@ class Subvol(DoNotFreeze):
 
             return (
                 0,
-                loop_vol.minimize_size()
-                if not loopback_opts.size_mb
-                else loop_vol.get_size(),
+                loop_vol.get_size()
+                if loopback_opts.size_mb
+                else loop_vol.minimize_size(),
             )
 
     def _send_to_loopback_second_pass(
@@ -1362,7 +1362,7 @@ class TempSubvolumes:
                 pass
         self._stack = ExitStack()
         self._temp_dir_ctx = temp_dir(
-            dir=volume_tmp_dir.decode(), prefix=self.__class__.__name__ + "_"
+            dir=volume_tmp_dir.decode(), prefix=f"{self.__class__.__name__}_"
         )
 
     def __enter__(self):

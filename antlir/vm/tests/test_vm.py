@@ -20,7 +20,7 @@ from antlir.vm.vm_opts_t import vm_opts_t
 class TestAntlirVM(AntlirTestCase):
     def test_parse_cli(self):
         opts_instance = vm_opts_t.from_env("test-vm-seed-json")
-        opts_cli_arg = "--opts={}".format(os.environ["test-vm-seed-json"])
+        opts_cli_arg = f'--opts={os.environ["test-vm-seed-json"]}'
         # Test defaults of everything that has a default
         self.assertEqual(
             VMExecOpts(
@@ -74,10 +74,9 @@ class TestAntlirVM(AntlirTestCase):
                     opts=opts_instance,
                     console=t,
                 ),
-                VMExecOpts.parse_cli(
-                    [opts_cli_arg, "--append-console={}".format(t)]
-                ),
+                VMExecOpts.parse_cli([opts_cli_arg, f"--append-console={t}"]),
             )
+
 
         # Test --shell=ssh
         self.assertEqual(

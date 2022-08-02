@@ -107,17 +107,15 @@ class Checksum(NamedTuple):
 
 def read_chunks(input: BytesIO, chunk_size: int) -> Iterable[bytes]:
     while True:
-        chunk = input.read(chunk_size)
-        if not chunk:
+        if chunk := input.read(chunk_size):
+            yield chunk
+        else:
             break
-        yield chunk
 
 
 def has_yum():
     """Determine if our system might have yum with `which yum`"""
-    if not shutil.which("yum"):
-        return False
-    return True
+    return bool(shutil.which("yum"))
 
 
 def yum_is_dnf():

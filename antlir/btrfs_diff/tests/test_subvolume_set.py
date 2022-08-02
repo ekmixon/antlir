@@ -39,10 +39,6 @@ class SubvolumeSetTestCase(AntlirTestCase):
     def test_subvolume_set(self):
         si = SendStreamItems
         subvols = SubvolumeSet.new()
-        # We'll check that freezing the SubvolumeSet at various points
-        # results in an object that is not affected by future mutations.
-        reprs_and_frozens = []
-
         # Make a tiny subvolume
         cat_mutator = SubvolumeSetMutator.new(
             subvols, si.subvol(path=b"cat", uuid=b"abe", transid=3)
@@ -68,7 +64,7 @@ class SubvolumeSetTestCase(AntlirTestCase):
         self.assertEqual("cat", repr(cat.id_map.inner.description))
         self.assertEqual("cat", repr(cat.id_map.inner.description))
 
-        reprs_and_frozens.append(
+        reprs_and_frozens = [
             (
                 {
                     "cat": [
@@ -82,7 +78,8 @@ class SubvolumeSetTestCase(AntlirTestCase):
                 },
                 freeze(subvols),
             )
-        )
+        ]
+
         self._check_repr(*reprs_and_frozens[-1])
 
         # `tiger` is a snapshot of `cat`

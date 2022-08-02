@@ -43,9 +43,7 @@ class ExtractedFeatures:
         assert not (
             self.packaged_root and other.packaged_root
         ), f"Two root packages set: {self.packaged_root}, {other.packaged_root}"
-        self.packaged_root = (
-            self.packaged_root if self.packaged_root else other.packaged_root
-        )
+        self.packaged_root = self.packaged_root or other.packaged_root
         self.make_dir_paths |= other.make_dir_paths
         self.install_rpm_names |= other.install_rpm_names
         self.features_needing_custom_image |= (
@@ -80,7 +78,7 @@ class _FeatureHandlers:
         project, parent_name = parent_layer_target.split(":", maxsplit=1)
         return extract_nested_features(
             layer_features_out=self.target_to_path[
-                project + ":" + feature_for_layer(parent_name)
+                f"{project}:{feature_for_layer(parent_name)}"
             ],
             layer_out=Path(self.target_to_path[parent_layer_target]),
             target_to_path=self.target_to_path,
@@ -106,8 +104,7 @@ class _FeatureHandlers:
             )
             # pyre-fixme[7]: Expected `ExtractedFeatures` but got `None`.
             return None
-        name = self.config.get("name")
-        if name:
+        if name := self.config.get("name"):
             names = {name}
         else:
             assert "source" in self.config, self.config
@@ -166,12 +163,10 @@ def extract_nested_features(
             # custom image.  This hack would be avoided if we had separate
             # feature keys for "rpms_install" and "rpms_remove".
             non_custom_features = non_custom_handler()
-        if non_custom_features:
-            extracted_features += non_custom_features
-        else:
-            extracted_features += ExtractedFeatures(
-                features_needing_custom_image={feature_key}
-            )
+        extracted_features += non_custom_features or ExtractedFeatures(
+            features_needing_custom_image={feature_key}
+        )
+
         # pyre-fixme[16]: `Optional` has no attribute `append`.
         extracted_features.features_to_replay.append(
             (feature_key, target, config)

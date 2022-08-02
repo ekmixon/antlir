@@ -51,17 +51,17 @@ class GuestSSHConnection:
         self, *, timeout_ms: int, forward: Optional[Mapping[Path, Path]] = None
     ) -> List[Union[str, bytes]]:
         options = {
-            # just ignore the ephemeral vm fingerprint
             "UserKnownHostsFile": "/dev/null",
             "StrictHostKeyChecking": "no",
-            "ConnectTimeout": int(timeout_ms / 1000),
+            "ConnectTimeout": timeout_ms // 1000,
             "ConnectionAttempts": 10,
             "StreamLocalBindUnlink": "yes",
         }
 
+
         if self.options:
             logger.debug(f"Additional options: {self.options}")
-            options.update(self.options)
+            options |= self.options
 
         options = list(
             chain.from_iterable(["-o", f"{k}={v}"] for k, v in options.items())

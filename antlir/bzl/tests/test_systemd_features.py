@@ -53,7 +53,7 @@ unit_test_specs = [
 
 def _tdep(target, dep):
     """Make a target name into a '.wants/requires' dir as a Path type."""
-    return Path(target + "." + dep)
+    return Path(f"{target}.{dep}")
 
 
 class TestSystemdFeatures(unittest.TestCase):
@@ -85,15 +85,7 @@ class TestSystemdFeatures(unittest.TestCase):
                 )
 
             # make sure it's *not* enabled where it shouldn't be
-            for avail_target in [
-                avail
-                for avail in available_targets
-                if target
-                and (
-                    avail.basename() != _tdep(target, "wants")
-                    and avail.basename() != _tdep(target, "requires")
-                )
-            ]:
+            for avail_target in [avail for avail in available_targets if target and avail.basename() not in [_tdep(target, "wants"), _tdep(target, "requires")]]:
                 unit_in_target_wants = avail_target / unit
 
                 self.assertFalse(
@@ -116,5 +108,5 @@ class TestSystemdFeatures(unittest.TestCase):
         for unit, _, _, _, dropin in unit_test_specs:
             if not dropin:
                 continue
-            dropin_file = PROV_ROOT / (unit + ".d") / dropin
+            dropin_file = PROV_ROOT / f"{unit}.d" / dropin
             self.assertTrue(os.path.exists(dropin_file), dropin_file)

@@ -245,8 +245,7 @@ class Format:
 
     def __init_subclass__(cls, format_name: str, **kwargs):
         super().__init_subclass__(**kwargs)
-        prev_cls = cls.NAME_TO_CLASS.get(format_name)
-        if prev_cls:
+        if prev_cls := cls.NAME_TO_CLASS.get(format_name):
             raise AssertionError(f"{cls} and {prev_cls} share format_name")
         # pyre-fixme[16]: `Mapping` has no attribute `__setitem__`.
         cls.NAME_TO_CLASS[format_name] = cls
@@ -600,11 +599,10 @@ def package_image(argv):
             build_appliance=find_built_subvol(args.build_appliance)
             if args.build_appliance
             else None,
-            loopback_opts=args.loopback_opts
-            if args.loopback_opts
-            else loopback_opts_t(),
+            loopback_opts=args.loopback_opts or loopback_opts_t(),
         ),
     )
+
     # Paranoia: images are read-only after being built
     os.chmod(
         args.output_path,

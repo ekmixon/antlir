@@ -234,11 +234,7 @@ class Unshare:
             try:
                 self._keepalive_proc.stdin.close()  # "Normally" won't fail
                 if self._keepalive_proc.wait() != 0:  # prag
-                    log.warning(
-                        "Unshare keepalive exited with {}".format(
-                            self._keepalive_proc.returncode
-                        )
-                    )
+                    log.warning(f"Unshare keepalive exited with {self._keepalive_proc.returncode}")
             finally:
                 self._keepalive_proc = None
             # By this point, the namespaces should be getting torn down.
@@ -289,17 +285,9 @@ class Unshare:
 
 def nsenter_as_root(unshare, *cmd: List[AnyStr]) -> List[AnyStr]:
     "Unshare.nsenter_as_root that also handles unshare=None"
-    if unshare is None:
-        # pyre-fixme[7]: Expected `List[Variable[AnyStr <: [str, bytes]]]` but
-        # got `Tuple[str, *Tuple[List[Variable[AnyStr <: [str, bytes]]], ...]]`.
-        return ("sudo", *cmd)
-    return unshare.nsenter_as_root(*cmd)
+    return ("sudo", *cmd) if unshare is None else unshare.nsenter_as_root(*cmd)
 
 
 def nsenter_as_user(unshare, *cmd: List[AnyStr]) -> List[AnyStr]:
     "Unshare.nsenter_as_user that also handles unshare=None"
-    if unshare is None:
-        # pyre-fixme[7]: Expected `List[Variable[AnyStr <: [str, bytes]]]` but
-        # got `Tuple[List[Variable[AnyStr <: [str, bytes]]], ...]`.
-        return cmd
-    return unshare.nsenter_as_user(*cmd)
+    return cmd if unshare is None else unshare.nsenter_as_user(*cmd)

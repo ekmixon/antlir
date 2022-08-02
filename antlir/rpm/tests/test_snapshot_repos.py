@@ -70,25 +70,25 @@ class SnapshotReposTestCase(unittest.TestCase):
 
     def test_snapshot(self):
         with temp_repos.temp_repos_steps(
-            gpg_signing_key=temp_repos.get_test_signing_key(),
-            repo_change_steps=[
-                {  # All of the `snap0` repos are in the "mammal" universe
-                    "bunny": temp_repos.SAMPLE_STEPS[0]["bunny"],
-                    "cat": temp_repos.SAMPLE_STEPS[0]["cat"],
-                    "dog": temp_repos.SAMPLE_STEPS[0]["dog"],
-                    "kitteh": "cat",
-                    "gonna_skip_for_0": "bunny",
-                },
-                # None of these are in the "mammal" universe, see `ru_json`
-                # below.
-                {
-                    # 'bunny' stays unchanged, with the step 0 `repomd.xml`
-                    "cat": temp_repos.SAMPLE_STEPS[1]["cat"],
-                    "dog": temp_repos.SAMPLE_STEPS[1]["dog"],
-                    # 'kitteh' stays unchanged, with the step 0 `repomd.xml`
-                },
-            ],
-        ) as repos_root, temp_dir() as td:
+                gpg_signing_key=temp_repos.get_test_signing_key(),
+                repo_change_steps=[
+                    {  # All of the `snap0` repos are in the "mammal" universe
+                        "bunny": temp_repos.SAMPLE_STEPS[0]["bunny"],
+                        "cat": temp_repos.SAMPLE_STEPS[0]["cat"],
+                        "dog": temp_repos.SAMPLE_STEPS[0]["dog"],
+                        "kitteh": "cat",
+                        "gonna_skip_for_0": "bunny",
+                    },
+                    # None of these are in the "mammal" universe, see `ru_json`
+                    # below.
+                    {
+                        # 'bunny' stays unchanged, with the step 0 `repomd.xml`
+                        "cat": temp_repos.SAMPLE_STEPS[1]["cat"],
+                        "dog": temp_repos.SAMPLE_STEPS[1]["dog"],
+                        # 'kitteh' stays unchanged, with the step 0 `repomd.xml`
+                    },
+                ],
+            ) as repos_root, temp_dir() as td:
             storage_dict = {
                 "key": "test",
                 "kind": "filesystem",
@@ -100,24 +100,23 @@ class SnapshotReposTestCase(unittest.TestCase):
             # multiple universes do not collide.
             orig_store_repomd = repo_db.RepoDBContext.store_repomd
             with unittest.mock.patch.object(
-                repo_db.RepoDBContext,
-                "store_repomd",
-                lambda self, universe_s, repo_s, repomd: orig_store_repomd(
-                    self,
-                    universe_s,
-                    repo_s,
-                    repomd._replace(fetch_timestamp=451),
-                ),
-            ), tempfile.NamedTemporaryFile("w") as ru_json:
+                        repo_db.RepoDBContext,
+                        "store_repomd",
+                        lambda self, universe_s, repo_s, repomd: orig_store_repomd(
+                            self,
+                            universe_s,
+                            repo_s,
+                            repomd._replace(fetch_timestamp=451),
+                        ),
+                    ), tempfile.NamedTemporaryFile("w") as ru_json:
                 common_args = [
                     f'--gpg-key-allowlist-dir={td / "gpg_allowlist"}',
-                    "--storage=" + Path.json_dumps(storage_dict),
+                    f"--storage={Path.json_dumps(storage_dict)}",
                     "--db="
-                    + Path.json_dumps(
-                        {"kind": "sqlite", "db_path": repo_db_path}
-                    ),
+                    + Path.json_dumps({"kind": "sqlite", "db_path": repo_db_path}),
                     "--threads=4",
                 ]
+
                 snapshot_repos_from_args(
                     common_args
                     + [
@@ -351,19 +350,20 @@ class SnapshotReposTestCase(unittest.TestCase):
                 ),
             ]:
                 with sqlite3.connect(
-                    RepoSnapshot.fetch_sqlite_from_storage(
-                        Storage.make(**storage_dict),
-                        td / snap_name,
-                        td / snap_name / "snapshot.sql3",
-                    )
-                ) as db:
+                                RepoSnapshot.fetch_sqlite_from_storage(
+                                    Storage.make(**storage_dict),
+                                    td / snap_name,
+                                    td / snap_name / "snapshot.sql3",
+                                )
+                            ) as db:
                     rows = db.execute(
                         'SELECT "repo", "path", "error", "checksum" FROM "rpm"'
                     ).fetchall()
                     self.assertEqual(
-                        {(r, p + ".x86_64.rpm") for r, p in expected_rows},
+                        {(r, f"{p}.x86_64.rpm") for r, p in expected_rows},
                         {(r, p) for r, p, _e, _c in rows},
                     )
+
                     for repo, path, error, chksum in rows:
                         # There is just 1 error among all the rows.  The
                         # "milk-2.71" RPM from either "kitteh" or "cat" in

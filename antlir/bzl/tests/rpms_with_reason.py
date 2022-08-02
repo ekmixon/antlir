@@ -64,7 +64,7 @@ def print_required_by(rpm, wanted, required_by, cost=None):
     if not notes:
         notes.append("NOT REQUIRED")
     elif cost:
-        notes.append("remove to free: " + cost)
+        notes.append(f"remove to free: {cost}")
     print(f"{rpm}\t{'; '.join(notes)}")
 
 
@@ -92,11 +92,10 @@ def print_rpms_with_reason(wanted_rpms):
             text=True,
             check=False,
         )
-        m = re.search(
+        if m := re.search(
             " removing the following protected packages: (.*)\n", p.stderr
-        )
-        if m:
-            print_required_by(rpm, wanted, {p for p in m.group(1).split() if p})
+        ):
+            print_required_by(rpm, wanted, {p for p in m[1].split() if p})
             continue
 
         if re.search("\nRemove +[0-9]+ Packages?\n", p.stdout):
@@ -109,8 +108,9 @@ def print_rpms_with_reason(wanted_rpms):
                 rpm,
                 wanted,
                 wanted.intersection(removed),
-                cost=re.search("\nFreed space: (.*)\n", p.stdout).group(1),
+                cost=re.search("\nFreed space: (.*)\n", p.stdout)[1],
             )
+
             continue
 
         raise AssertionError(p)

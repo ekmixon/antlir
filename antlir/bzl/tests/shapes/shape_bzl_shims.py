@@ -18,9 +18,11 @@ import json
 
 
 def __dataclass_eq(left, right):
-    if not dataclasses.is_dataclass(right):
-        return False
-    return dataclasses.asdict(left) == dataclasses.asdict(right)
+    return (
+        dataclasses.asdict(left) == dataclasses.asdict(right)
+        if dataclasses.is_dataclass(right)
+        else False
+    )
 
 
 def __struct_to_json(s):

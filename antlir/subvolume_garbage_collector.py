@@ -65,11 +65,10 @@ def nonblocking_flock(path: Path) -> Iterator[bool]:
     # service that runs behind our back.
     fd = os.open(path, os.O_RDONLY)
     try:
-        try:
-            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            yield True
-        except BlockingIOError:
-            yield False
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        yield True
+    except BlockingIOError:
+        yield False
     finally:
         os.close(fd)  # Don't hold the lock any longer than we have to!
 
@@ -100,7 +99,7 @@ def list_refcounts(refcounts_dir: Path) -> Iterator[Tuple[Path, int]]:
         # `SubvolumeOnDisk.from_json_file`, but we cannot do that because
         # our GC pass might be running concurrently with another build, and
         # the refcount file might be empty or half-written.
-        yield (Path(f"{m.group('name')}:{m.group('version')}"), st.st_nlink)
+        yield (Path(f"{m['name']}:{m['version']}"), st.st_nlink)
 
 
 def garbage_collect_subvolumes(
@@ -309,11 +308,8 @@ def subvolume_garbage_collector(argv):
 
     # .json outputs and refcounts are written as an unprivileged user. We
     # only need root for subvolume manipulation (above).
-    try:
+    with contextlib.suppress(FileExistsError):
         os.mkdir(args.refcounts_dir, mode=0o700)
-    except FileExistsError:  # Don't fail on races to `mkdir`.
-        pass
-
     # Prepare the output file for the compiler to write into. We'll need the
     # json output to exist to hardlink it.  But, first, ensure it does not
     # exist so that its link count starts at 1.  Finally, make the hardlink
@@ -347,10 +343,8 @@ def subvolume_garbage_collector(argv):
         # actually gives us an empty directory, so this is done solely for
         # robustness.
         for p in (new_subvolume_refcount, args.new_subvolume_json):
-            try:
+            with contextlib.suppress(FileNotFoundError):
                 p.unlink()
-            except FileNotFoundError:
-                pass
         os.close(
             os.open(
                 args.new_subvolume_json,

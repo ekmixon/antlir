@@ -47,15 +47,11 @@ class RepoSizerTestCase(unittest.TestCase):
             for chk in syns:
                 assert chk in self.sizes
                 rpm = _FAKE_RPM._replace(
-                    # pyre-fixme[6]: Expected `str` for 1st param but got
-                    # `Set[str]`.
-                    #
-                    # pyre-fixme[58]: `+` is not supported for operand types
-                    # `Set[str]` and `str`.
-                    checksum=Checksum(chk, chk + "v"),
-                    canonical_checksum=Checksum(canonical, canonical + "v"),
+                    checksum=Checksum(chk, f"{chk}v"),
+                    canonical_checksum=Checksum(canonical, f"{canonical}v"),
                     size=self.sizes[chk],
                 )
+
                 sizer.visit_rpm(rpm)
         # pyre-fixme[7]: Expected `Tuple[RepoSizer, List[int]]` but got
         # `RepoSizer`.
@@ -67,7 +63,7 @@ class RepoSizerTestCase(unittest.TestCase):
         # pyre-fixme[6]: Expected `str` for 1st param but got `Iterable[str]`.
         # pyre-fixme[58]: `+` is not supported for operand types `Iterable[str]`
         # and `str`.
-        return {Checksum(k, k + "v"): self.sizes[k] for k in ids}
+        return {Checksum(k, f"{k}v"): self.sizes[k] for k in ids}
 
     def test_sizer(self):
         sizer = RepoSizer()

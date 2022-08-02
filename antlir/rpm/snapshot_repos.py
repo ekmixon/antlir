@@ -76,7 +76,7 @@ def _write_confs_get_repos(
     ]:
         if content is not None:
             # Save the original, unmodified config in case of an error
-            with create_ro(dest / (out_name + ".original"), "w") as out:
+            with create_ro(dest / f"{out_name}.original", "w") as out:
                 out.write(content)
             # Remove the excluded repos
             cp = ConfigParser()
@@ -95,8 +95,7 @@ def _write_confs_get_repos(
                 )
             )
     yum_repos, dnf_repos = yum_dnf_repos
-    diff_repos = yum_repos.symmetric_difference(dnf_repos)
-    if diff_repos:  # pragma: no cover
+    if diff_repos := yum_repos.symmetric_difference(dnf_repos):
         # This is not allowed because `RpmActionItem` needs the package sets
         # to be the same for `yum` or `dnf`, since it uses the
         # `snapshot.sql3` DB to validate package names and determine
@@ -221,12 +220,14 @@ def snapshot_repos_from_args(argv: List[str]):
     universe_group.add_argument(
         "--repo-to-universe-json",
         type=Path.from_argparse,
-        help="JSON dict of repo name to universe name. " + universe_warning,
+        help=f"JSON dict of repo name to universe name. {universe_warning}",
     )
+
     universe_group.add_argument(
         "--one-universe-for-all-repos",
-        help="Snapshot all repos under this universe name. " + universe_warning,
+        help=f"Snapshot all repos under this universe name. {universe_warning}",
     )
+
 
     args = Path.parse_args(parser, argv)
 

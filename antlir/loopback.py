@@ -87,7 +87,7 @@ class LoopbackVolume:
     def mount(self) -> Path:
         mount_opts = "loop,discard,nobarrier"
         if self._mount_options:
-            mount_opts += ",{}".format(",".join(self._mount_options))
+            mount_opts += f',{",".join(self._mount_options)}'
 
         log.info(
             f"Mounting {self._fs_type} {self._image_path} at {self._mount_dir} "
@@ -338,11 +338,7 @@ class BtrfsLoopbackVolume(LoopbackVolume):
         maybe_min_size_bytes = int(min_size_out[0])
         # Btrfs filesystems cannot be resized below a certain limit, if if we
         # have a smaller fs than the limit, we just use the limit.
-        min_size_bytes = (
-            maybe_min_size_bytes
-            if maybe_min_size_bytes >= MIN_SHRINK_BYTES
-            else MIN_SHRINK_BYTES
-        )
+        min_size_bytes = max(maybe_min_size_bytes, MIN_SHRINK_BYTES)
 
         if min_size_bytes >= self._size_bytes:
             log.info(

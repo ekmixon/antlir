@@ -101,9 +101,10 @@ class InstallFileItemTestCase(BaseItemTestCase):
         path_in_layer = b"rpm_test/cheese2.txt"
         item = _install_file_item(
             from_target="t",
-            source={"layer": layer, "path": "/" + path_in_layer.decode()},
+            source={"layer": layer, "path": f"/{path_in_layer.decode()}"},
             dest="cheese2",
         )
+
         source_path = layer.path(path_in_layer)
         p = _InstallablePath(
             source_path, ProvidesFile(path=Path("cheese2")), "a+r"

@@ -252,7 +252,7 @@ class RepoSnapshot(NamedTuple):
             #  `Union[Repodata, Rpm]`.
             other_d = get_other_cols_fn(obj)
             assert not (set(d) & set(other_d)), (d, other_d)
-            d.update(other_d)
+            d |= other_d
             assert set(d) == set(expected_columns), (d, expected_columns)
             yield d
 

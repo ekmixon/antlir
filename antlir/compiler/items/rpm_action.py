@@ -261,7 +261,7 @@ def _prepare_versionlock(
         for vs_path in version_sets:
             with open(vs_path, "rb") as infile:
                 for l in infile:
-                    if not l.split()[1] in overridden_rpm_names:
+                    if l.split()[1] not in overridden_rpm_names:
                         outfile.write(l)
                         if not l.endswith(b"\n"):
                             outfile.write(b"\n")

@@ -68,7 +68,7 @@ def make_target_path_map(targets_locations: Sequence[str]) -> Dict[str, str]:
             for target, output in targets_to_outputs.copy().items():
                 if target.startswith("//"):
                     targets_to_outputs[cell + target] = output
-                if target.startswith(cell + "//"):
+                if target.startswith(f"{cell}//"):
                     targets_to_outputs[target[len(cell) :]] = output
     return targets_to_outputs
 

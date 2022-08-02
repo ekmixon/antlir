@@ -30,10 +30,10 @@ class TestImpl:
         not validating that we correctly set `metadata_expires`.
         """
         with tempfile.NamedTemporaryFile("r") as logfile, subprocess.Popen(
-            ["tee", logfile.name], stdout=2, stdin=subprocess.PIPE
-        ) as tee, unittest.mock.patch.object(
-            launch_repo_servers, "_mockable_popen_for_repo_server"
-        ) as mock_popen:
+                ["tee", logfile.name], stdout=2, stdin=subprocess.PIPE
+            ) as tee, unittest.mock.patch.object(
+                launch_repo_servers, "_mockable_popen_for_repo_server"
+            ) as mock_popen:
             mock_popen.side_effect = lambda *args, **kwargs: subprocess.Popen(
                 *args, **kwargs, stderr=tee.stdin
             )
@@ -49,11 +49,10 @@ class TestImpl:
             )
             seen_repomds = set()
             for l in logfile:
-                m = repodata_re.match(l)
-                if m:
+                if m := repodata_re.match(l):
                     # Any other repodata access means our cache is bad.
-                    self.assertEqual(m.group(2), "repomd.xml", l)
-                    seen_repomds.add(m.group(1))
+                    self.assertEqual(m[2], "repomd.xml", l)
+                    seen_repomds.add(m[1])
             self.assertTrue(
                 seen_repomds.issubset(expected_repomds),
                 (seen_repomds, expected_repomds),

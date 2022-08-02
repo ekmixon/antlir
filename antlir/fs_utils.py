@@ -91,18 +91,14 @@ class Path(bytes):
 
     @classmethod
     def or_none(cls, arg, *args, **kwargs):
-        if arg is None:
-            return None
-        return cls(arg, *args, **kwargs)
+        return None if arg is None else cls(arg, *args, **kwargs)
 
     @classmethod
-    # pyre-fixme[14]: `join` overrides method defined in `bytes` inconsistently.
     def join(cls, *paths) -> "Path":
-        if not paths:
-            # pyre-fixme[7]: Expected `Path` but got `None`.
-            return None
-        return Path(
-            os.path.join(byteme(paths[0]), *(byteme(p) for p in paths[1:]))
+        return (
+            Path(os.path.join(byteme(paths[0]), *(byteme(p) for p in paths[1:])))
+            if paths
+            else None
         )
 
     def __truediv__(self, right: AnyStr) -> "Path":
@@ -132,7 +128,7 @@ class Path(bytes):
         raise FileNotFoundError(self)
 
     def file_url(self) -> str:
-        return "file://" + urllib.parse.quote(self.abspath())
+        return f"file://{urllib.parse.quote(self.abspath())}"
 
     def abspath(self) -> "Path":
         return Path(os.path.abspath(self))
@@ -312,11 +308,10 @@ class Path(bytes):
                         # We can't use `os.sendfile` because `rsrc_in` may
                         # not be backed by a real FD.
                         while True:
-                            # Read 512KiB chunks to mask the syscall cost
-                            chunk = rsrc_in.read(2 ** 19)
-                            if not chunk:
+                            if chunk := rsrc_in.read(2**19):
+                                rsrc_out.write(chunk)
+                            else:
                                 break
-                            rsrc_out.write(chunk)
                     if exe:
                         # The temporary directory protects us from undesired
                         # access.  The goal is to let both the current user

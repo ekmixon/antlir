@@ -29,7 +29,7 @@ def mangle_target(normalized_target: str, min_abbrev: int = 15) -> str:
     return (
         name
         if len(name) < (2 * min_abbrev + 3)
-        else (name[:min_abbrev] + "..." + name[-min_abbrev:])
+        else f"{name[:min_abbrev]}...{name[-min_abbrev:]}"
     ) + f"__{_sha256_b64(normalized_target.encode())[:20]}"
 
 

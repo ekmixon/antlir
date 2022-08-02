@@ -71,7 +71,7 @@ def populate_temp_filesystem(img_path):
 
     for filepath in ["a/E", "a/d/F", "a/b/c/G"]:
         with open(p(filepath), "w") as f:
-            f.write("Hello, " + filepath)
+            f.write(f"Hello, {filepath}")
 
     os.symlink("a", p("h"))
     os.symlink("a/E", p("i"))

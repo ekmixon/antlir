@@ -420,7 +420,7 @@ def _save_allowed_versions(
             continue
 
         os.makedirs(dest_dir / vpgroup.oncall, exist_ok=True)
-        src_path = vpgroup.oncall + "/" + vpgroup.group_id
+        src_path = f"{vpgroup.oncall}/{vpgroup.group_id}"
         with create_ro(dest_dir / src_path, "w") as outfile:
             # Sorted in the RPM update order for diff stability.
             for envra in sorted(envras):
@@ -450,7 +450,7 @@ def _populate_vset_buck_file(
 ) -> None:
     buckfile.write(
         f"""\
-# {'@'}generated via //antlir/rpm/allowed_versions:update-allowed-versions
+# @generated via //antlir/rpm/allowed_versions:update-allowed-versions
 #
 # This file was generated automatically, in course of automatic update of RPM
 # snapshot and build_appliance. You can see an RPM mentioned below even if you
@@ -461,6 +461,7 @@ load("//antlir/bzl:oss_shim.bzl", "rpm_vset")
 
 """
     )
+
 
     for pkg, src_path in sorted(
         pkg_to_src_path.items(),
@@ -493,13 +494,13 @@ def update_allowed_versions(args: argparse.Namespace) -> None:
     with plugin_driver.prepare_load_config_fns() as load_config_fns:
         vset_to_vpgroups = _load_version_sets(
             sum(
-                [glob.glob(dir / "*.json") for dir in args.package_groups_dir],
+                (glob.glob(dir / "*.json") for dir in args.package_groups_dir),
                 [],
             ),
             load_config_fns,
-            # pyre-fixme[16]: `str` has no attribute `decode`.
             {vs.decode() for vs in os.listdir(args.version_sets_dir)},
         )
+
     log.info(f"XXXvsets {vset_to_vpgroups}")
     # pyre-fixme[16]: `Path` has no attribute `__enter__`.
     with populate_temp_dir_and_rename(

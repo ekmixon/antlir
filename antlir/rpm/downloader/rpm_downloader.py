@@ -48,12 +48,7 @@ log = get_logger()
 
 def _is_retryable_http_err(e: Exception) -> bool:
     if isinstance(e, ProtocolError):
-        if len(e.args) < 2 or not isinstance(e.args[1], ConnectionError):
-            # We can add retries if these actually happen.
-            return False  # pragma: no cover
-        # E.g. urllib3.exceptions.ProtocolError: ("Connection broken: ...",
-        # ConnectionResetError(104, 'Connection reset by peer')).
-        return True
+        return len(e.args) >= 2 and isinstance(e.args[1], ConnectionError)
     if isinstance(e, HTTPError):
         # 408 is 'Request Timeout' and, as with 5xx, can reasonably be
         # presumed to be a transient issue that's worth retrying
@@ -108,15 +103,11 @@ def _detect_mutable_rpms(
         "but it still exists in repos"
     )
 
-    mutable_checksums_and_universes = (
+    if mutable_checksums_and_universes := (
         all_canonical_checksums_and_universes
         - my_checksums_and_universes
         - deleted_checksums_and_universes
-    )
-    # If anything is left over, the repos have this NEVRA with multiple
-    # variants of its contents, which means installing it would be
-    # nondeterministic.  So, we will refuse to serve it from the snapshot.
-    if mutable_checksums_and_universes:
+    ):
         # Future: It would be nice to mark all mentions of the NEVRA
         # as bad, but that requires messy updates of multiple
         # `RepoSnapshot`s.  For now, we rely on the fact that the next

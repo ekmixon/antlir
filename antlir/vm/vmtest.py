@@ -110,10 +110,9 @@ async def wrap_tpx_gtest_cmd(
 ]:
     log.debug("Rewriting gtest cmd: {cmd}")
 
-    gtest_output = env.get("GTEST_OUTPUT") or os.environ.get("GTEST_OUTPUT")
-    if not gtest_output:
-        yield cmd, env, None
-    else:
+    if gtest_output := env.get("GTEST_OUTPUT") or os.environ.get(
+        "GTEST_OUTPUT"
+    ):
         prefix = "xml:"
         assert gtest_output.startswith(prefix)
         gtest_output = gtest_output[len(prefix) :]
@@ -124,6 +123,9 @@ async def wrap_tpx_gtest_cmd(
             wrapper=wrapper,
         ) as (cmd, socket):
             yield cmd, env, socket
+
+    else:
+        yield cmd, env, None
 
 
 _TEST_TYPE_TO_WRAP_CMD = {
@@ -244,13 +246,12 @@ async def run(
                 "--gtest_list_tests"
             )
             args += ["--gtest_list_tests"]
-        # Python tests send output to the file provided by `--list-tests`
         elif list_tests:
             assert (
                 test_type == "pyunit"
             ), f"Incompatible test_type: {test_type} and list arg: --list-tests"
             args += ["--list-tests", list_tests]
-        elif list_rust:
+        else:
             assert (
                 test_type == "rust"
             ), f"Incompatible test_type: {test_type} and list arg: --list"
@@ -280,43 +281,39 @@ async def run(
     if devel_layer:
         shares += [
             Plan9Export(
-                # pyre-fixme[16]: `Optional` has no attribute `path`.
-                path=find_built_subvol(opts.kernel.artifacts.devel.path).path(),
-                # pyre-fixme[6]: Expected `Optional[Path]` for 2nd param but got
-                # `str`.
-                mountpoint="/usr/src/kernels/{}".format(opts.kernel.uname),
+                path=find_built_subvol(
+                    opts.kernel.artifacts.devel.path
+                ).path(),
+                mountpoint=f"/usr/src/kernels/{opts.kernel.uname}",
                 mount_tag="kernel-devel-src",
                 generator=True,
             ),
             Plan9Export(
-                path=find_built_subvol(opts.kernel.artifacts.devel.path).path(),
-                # pyre-fixme[6]: Expected `Optional[Path]` for 2nd param but got
-                # `str`.
-                mountpoint="/usr/lib/modules/{}/build".format(
-                    opts.kernel.uname
-                ),
+                path=find_built_subvol(
+                    opts.kernel.artifacts.devel.path
+                ).path(),
+                mountpoint=f"/usr/lib/modules/{opts.kernel.uname}/build",
                 mount_tag="kernel-devel-build",
                 generator=True,
             ),
         ]
 
+
     async with vm(
-        bind_repo_ro=bind_repo_ro,
-        console=console,
-        opts=opts,
-        shares=shares,
-        shell=shell,
-        timeout_ms=timeout_ms,
-    ) as (instance, boot_elapsed_ms, timeout_ms):
+            bind_repo_ro=bind_repo_ro,
+            console=console,
+            opts=opts,
+            shares=shares,
+            shell=shell,
+            timeout_ms=timeout_ms,
+        ) as (instance, boot_elapsed_ms, timeout_ms):
 
         # If we are run with `--shell` mode, we don't get an instance since
         # the --shell mode takes over.  This is a bit of a wart that exists
         # because if a context manager doesn't yield *something* it will
         # throw an exception that this caller has to handle.
         if instance:
-            cmd: List[Union[Path, str]] = [test_binary]
-            cmd.extend(list(extra))
-
+            cmd: List[Union[Path, str]] = [test_binary, *list(extra)]
             # find the correct rewrite command for the test type
             maybe_wrap_cmd = _TEST_TYPE_TO_WRAP_CMD[test_type]
 

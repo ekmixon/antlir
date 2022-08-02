@@ -141,7 +141,7 @@ ExplicitUpdates = Dict[Package, Dict[Tag, PackageDbUpdate]]
 
 
 def _with_generated_header_impl(s, token, how_to_generate):
-    return f"# {_GENERATED} {token}\n# Update via `{how_to_generate}`\n" + s
+    return f"# {_GENERATED} {token}\n# Update via `{how_to_generate}`\n{s}"
 
 
 def _with_generated_header(contents, how_to_generate):
@@ -372,13 +372,14 @@ def _parse_args(
         ),
     ]:
         parser.add_argument(
-            "--" + action,
+            f"--{action}",
             action="append",
             default=defaults.get(action, []),
             nargs="+",
             metavar="PACKAGE TAG [OPTIONS]",
             help=doc,
         )
+
     parser.add_argument(  # Pass this to `init_logging`
         "--debug",
         action="store_true",

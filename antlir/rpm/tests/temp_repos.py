@@ -71,8 +71,7 @@ class Rpm(NamedTuple):
             "epoch_line": f"Epoch: {self.epoch}" if self.epoch else "",
         }
 
-        spec = []
-        spec.append(
+        spec = [
             """\
 Summary: The "{name}" package.
 Name: rpm-test-{name}
@@ -89,7 +88,7 @@ Packager: somebody@example.com
 """.format(
                 **format_kwargs
             )
-        )
+        ]
 
         if self.custom_body:
             spec.append(self.custom_body)
